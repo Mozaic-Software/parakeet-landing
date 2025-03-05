@@ -84,6 +84,23 @@
   animation: fadeIn 0.5s ease-out forwards;
 }
 
+@keyframes wave {
+  0% { transform: rotate(0deg); }
+  10% { transform: rotate(14deg); }
+  20% { transform: rotate(-8deg); }
+  30% { transform: rotate(14deg); }
+  40% { transform: rotate(-4deg); }
+  50% { transform: rotate(10deg); }
+  60% { transform: rotate(0deg); }
+  100% { transform: rotate(0deg); }
+}
+
+.waving-hand {
+  display: inline-block;
+  animation: wave 2.5s ease-in-out infinite;
+  transform-origin: 70% 70%;
+}
+
 /* Responsive typography */
 @media (max-width: 640px) {
   h1 {
@@ -291,33 +308,194 @@
   background: linear-gradient(135deg, #f9fcff 0%, #f0f7ff 100%);
 }
 
-/* Enhanced grid pattern with animated gradient overlay */
-.bg-grid-pattern {
-  background-image: 
-    linear-gradient(rgba(79, 70, 229, 0.07) 1px, transparent 1px),
-    linear-gradient(to right, rgba(79, 70, 229, 0.07) 1px, transparent 1px);
-  background-size: 50px 50px;
-  position: relative;
+/* Workflow nodes background */
+.workflow-nodes {
+  position: absolute;
+  inset: 0;
+  opacity: 0.07;
+  pointer-events: none;
+  z-index: 0;
   overflow: hidden;
 }
 
-.bg-grid-pattern::before {
-  content: '';
+.node {
   position: absolute;
-  inset: -100%;
-  background: linear-gradient(45deg,
-    rgba(99, 102, 241, 0.12) 0%,
-    rgba(79, 70, 229, 0.12) 25%,
-    rgba(67, 56, 202, 0.12) 50%,
-    rgba(79, 70, 229, 0.12) 75%,
-    rgba(99, 102, 241, 0.12) 100%);
-  animation: moveGradient 15s linear infinite;
-  opacity: 0.5;
+  width: 60px;
+  height: 60px;
+  background: rgba(79, 70, 229, 0.2);
+  backdrop-filter: blur(4px);
+  border: 1px solid rgba(79, 70, 229, 0.3);
+  border-radius: 12px;
+  transform: rotate(45deg);
+  animation: float 20s infinite ease-in-out;
+
+  &::before {
+    content: '';
+    position: absolute;
+    inset: 4px;
+    border: 1px dashed rgba(79, 70, 229, 0.3);
+    border-radius: 8px;
+  }
+
+  &:nth-child(1) { top: 15%; left: 15%; animation-delay: 0s; }
+  &:nth-child(2) { top: 45%; left: 25%; animation-delay: -4s; }
+  &:nth-child(3) { top: 25%; left: 55%; animation-delay: -8s; }
+  &:nth-child(4) { top: 65%; left: 65%; animation-delay: -12s; }
+  &:nth-child(5) { top: 35%; left: 85%; animation-delay: -16s; }
 }
 
-@keyframes moveGradient {
-  0% { transform: translate(0, 0); }
-  100% { transform: translate(50%, 50%); }
+.connection {
+  position: absolute;
+  height: 1px;
+  background: linear-gradient(90deg, 
+    transparent,
+    rgba(79, 70, 229, 0.3) 20%,
+    rgba(79, 70, 229, 0.3) 80%,
+    transparent
+  );
+  animation: pulse 4s infinite ease-in-out;
+
+  &::after {
+    content: '';
+    position: absolute;
+    width: 4px;
+    height: 4px;
+    border-radius: 50%;
+    background: rgba(79, 70, 229, 0.4);
+    right: 20%;
+    top: -1.5px;
+    animation: dot 4s infinite ease-in-out;
+  }
+
+  &:nth-child(6) { width: 140px; top: 20%; left: 18%; transform: rotate(30deg); animation-delay: 0s; }
+  &:nth-child(7) { width: 180px; top: 40%; left: 28%; transform: rotate(-15deg); animation-delay: -1s; }
+  &:nth-child(8) { width: 160px; top: 30%; left: 58%; transform: rotate(20deg); animation-delay: -2s; }
+  &:nth-child(9) { width: 140px; top: 60%; left: 68%; transform: rotate(-25deg); animation-delay: -3s; }
+}
+
+@keyframes float {
+  0%, 100% {
+    transform: translate(0, 0) rotate(45deg);
+  }
+  50% {
+    transform: translate(0, 15px) rotate(45deg);
+  }
+}
+
+@keyframes pulse {
+  0%, 100% {
+    opacity: 0.2;
+  }
+  50% {
+    opacity: 0.5;
+  }
+}
+
+@keyframes dot {
+  0%, 100% {
+    transform: translateX(0);
+  }
+  50% {
+    transform: translateX(-20px);
+  }
+}
+
+/* Enhanced flowing background */
+.flow-pattern {
+  position: absolute;
+  inset: 0;
+  opacity: 0.15;
+  background-image: 
+    linear-gradient(45deg, rgba(79, 70, 229, 0.1) 25%, transparent 25%),
+    linear-gradient(-45deg, rgba(79, 70, 229, 0.1) 25%, transparent 25%),
+    linear-gradient(45deg, transparent 75%, rgba(79, 70, 229, 0.1) 75%),
+    linear-gradient(-45deg, transparent 75%, rgba(79, 70, 229, 0.1) 75%);
+  background-size: 40px 40px;
+  animation: flowMove 20s linear infinite;
+  mask-image: radial-gradient(circle at 50% 50%, black 40%, transparent 80%);
+}
+
+.flow-lines {
+  position: absolute;
+  inset: 0;
+  opacity: 0.2;
+  background: 
+    repeating-linear-gradient(90deg,
+      transparent 0px,
+      transparent 49px,
+      rgba(99, 102, 241, 0.1) 49px,
+      rgba(99, 102, 241, 0.1) 50px
+    ),
+    repeating-linear-gradient(0deg,
+      transparent 0px,
+      transparent 49px,
+      rgba(99, 102, 241, 0.1) 49px,
+      rgba(99, 102, 241, 0.1) 50px
+    );
+  animation: pulseLines 8s ease-in-out infinite;
+}
+
+.connection-dots {
+  position: absolute;
+  inset: 0;
+  opacity: 0.5;
+  background: 
+    radial-gradient(circle at 25% 25%, rgba(99, 102, 241, 0.1) 0%, rgba(99, 102, 241, 0.1) 1px, transparent 1px),
+    radial-gradient(circle at 75% 75%, rgba(79, 70, 229, 0.1) 0%, rgba(79, 70, 229, 0.1) 1px, transparent 1px);
+  background-size: 50px 50px;
+  animation: floatDots 15s linear infinite;
+}
+
+.connection-lines {
+  position: absolute;
+  inset: 0;
+  opacity: 0.15;
+  background-image: 
+    linear-gradient(45deg, transparent 48%, rgba(99, 102, 241, 0.3) 49%, rgba(99, 102, 241, 0.3) 51%, transparent 52%),
+    linear-gradient(-45deg, transparent 48%, rgba(79, 70, 229, 0.3) 49%, rgba(79, 70, 229, 0.3) 51%, transparent 52%);
+  background-size: 60px 60px;
+  animation: moveLines 20s linear infinite;
+}
+
+@keyframes flowMove {
+  0% {
+    transform: translate(0, 0) rotate(0deg);
+  }
+  100% {
+    transform: translate(-20px, -20px) rotate(1deg);
+  }
+}
+
+@keyframes pulseLines {
+  0%, 100% {
+    opacity: 0.1;
+    transform: scale(1);
+  }
+  50% {
+    opacity: 0.2;
+    transform: scale(1.02);
+  }
+}
+
+@keyframes floatDots {
+  0% {
+    transform: translateY(0);
+  }
+  50% {
+    transform: translateY(-10px);
+  }
+  100% {
+    transform: translateY(0);
+  }
+}
+
+@keyframes moveLines {
+  0% {
+    background-position: 0 0;
+  }
+  100% {
+    background-position: 60px 60px;
+  }
 }
 
 /* Enhanced hero content */
@@ -454,6 +632,331 @@
   from {
     opacity: 0;
     transform: translateY(20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+/* Workflow Preview Styles */
+.workflow-node {
+  transition: all 0.3s ease;
+  cursor: pointer;
+
+  &:hover {
+    transform: translateY(-2px);
+    
+    &.primary > div {
+      border-color: #4F46E5;
+      background-color: #EEF2FF;
+      box-shadow: 0 4px 6px -1px rgba(79, 70, 229, 0.1),
+                 0 2px 4px -1px rgba(79, 70, 229, 0.06);
+    }
+    
+    &.secondary > div {
+      box-shadow: 0 4px 6px -1px rgba(79, 70, 229, 0.1),
+                 0 2px 4px -1px rgba(79, 70, 229, 0.06);
+    }
+  }
+
+  > div {
+    transition: all 0.3s ease;
+  }
+}
+
+/* Workflow Connector Animation */
+@keyframes flowPulse {
+  0%, 100% {
+    opacity: 0.3;
+    transform: scaleY(1);
+  }
+  50% {
+    opacity: 0.6;
+    transform: scaleY(1.1);
+  }
+}
+
+.workflow-node.primary {
+  .absolute {
+    animation: flowPulse 2s ease-in-out infinite;
+    transform-origin: top;
+  }
+}
+
+/* Drag and Drop Styles */
+.cdk-drag-preview {
+  box-sizing: border-box;
+  border-radius: 0.5rem;
+  box-shadow: 0 5px 15px rgba(0, 0, 0, 0.15);
+  opacity: 0.8;
+  @apply bg-white;
+}
+
+.cdk-drag-placeholder {
+  opacity: 0.3;
+}
+
+.cdk-drag-animating {
+  transition: transform 250ms cubic-bezier(0, 0, 0.2, 1);
+}
+
+.workflow-node {
+  transition: transform 250ms cubic-bezier(0, 0, 0.2, 1);
+  
+  &.cdk-drag-placeholder {
+    opacity: 0.3;
+  }
+}
+
+.workflow-area.cdk-drop-list-dragging .workflow-node:not(.cdk-drag-placeholder) {
+  transition: transform 250ms cubic-bezier(0, 0, 0.2, 1);
+}
+
+/* Workflow node hover and active states */
+.workflow-node {
+  &:hover {
+    > div {
+      transform: translateY(-2px);
+      box-shadow: 0 4px 6px -1px rgba(79, 70, 229, 0.1),
+                 0 2px 4px -1px rgba(79, 70, 229, 0.06);
+    }
+  }
+  
+  &:active {
+    > div {
+      transform: translateY(0);
+      box-shadow: 0 2px 4px -1px rgba(79, 70, 229, 0.1),
+                 0 1px 2px -1px rgba(79, 70, 229, 0.06);
+    }
+  }
+}
+
+/* Connector line animation */
+.workflow-node {
+  .absolute {
+    transition: all 0.3s ease;
+    
+    &.bg-indigo-200 {
+      animation: flowPulse 2s ease-in-out infinite;
+    }
+  }
+}
+
+@keyframes flowPulse {
+  0%, 100% {
+    opacity: 0.3;
+    transform: scaleY(1);
+  }
+  50% {
+    opacity: 0.6;
+    transform: scaleY(1.1);
+  }
+}
+
+/* Workflow node active state */
+.workflow-node {
+  &.active > div {
+    @apply ring-2 ring-indigo-500 ring-offset-2 scale-105;
+    animation: pulse 2s cubic-bezier(0.4, 0, 0.6, 1) infinite;
+  }
+  
+  &.completed > div {
+    @apply ring-2 ring-green-500 ring-offset-2;
+    transition: all 0.3s ease;
+  }
+}
+
+/* Console Output Styles */
+.console-output {
+  height: 300px;
+  overflow-y: auto;
+  scroll-behavior: smooth;
+  background-color: #1a1f36;
+  border-radius: 0.5rem;
+  font-family: monospace;
+  
+  &::-webkit-scrollbar {
+    width: 8px;
+  }
+  
+  &::-webkit-scrollbar-track {
+    background: #141824;
+  }
+  
+  &::-webkit-scrollbar-thumb {
+    background: #2d3748;
+    border-radius: 4px;
+    
+    &:hover {
+      background: #4a5568;
+    }
+  }
+
+  .line {
+    padding: 4px 12px;
+    color: #e2e8f0;
+    opacity: 0;
+    animation: fadeUp 0.2s ease forwards;
+    
+    &.success { color: #48bb78; }
+    &.info { color: #4299e1; }
+    &.status { color: #667eea; }
+    &.progress { color: #a0aec0; }
+  }
+}
+
+.line:not(.success):not(.info):not(.status) {
+  color: #94A3B8;
+  
+  &[class*="done"] {
+    color: #34D399;
+  }
+  
+  &[class*="..."] {
+    &::after {
+      content: '';
+      display: inline-block;
+      width: 4px;
+      height: 4px;
+      margin-left: 8px;
+      background-color: currentColor;
+      border-radius: 50%;
+      animation: pulse 1s infinite;
+      opacity: 0.7;
+    }
+  }
+}
+
+@keyframes pulse {
+  0% {
+    transform: scale(0.8);
+    opacity: 0.5;
+  }
+  50% {
+    transform: scale(1.2);
+    opacity: 1;
+  }
+  100% {
+    transform: scale(0.8);
+    opacity: 0.5;
+  }
+}
+
+@keyframes fadeInUp {
+  from {
+    opacity: 0;
+    transform: translateY(8px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+/* Loading spinner animation */
+@keyframes spin {
+  from {
+    transform: rotate(0deg);
+  }
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+.animate-spin {
+  animation: spin 1s linear infinite;
+}
+
+/* Workflow Node Animations */
+.workflow-node {
+  transition: all 0.3s ease;
+  
+  &.active > div {
+    @apply ring-2 ring-indigo-500 ring-offset-2 scale-105;
+    animation: pulse 2s cubic-bezier(0.4, 0, 0.6, 1) infinite;
+  }
+  
+  &.completed > div {
+    @apply ring-2 ring-green-500 ring-offset-2;
+    transition: all 0.3s ease;
+  }
+}
+
+/* Completion Checkmark Animation */
+.scale-in {
+  animation: scaleIn 0.3s ease-out forwards;
+}
+
+@keyframes scaleIn {
+  from {
+    opacity: 0;
+    transform: scale(0);
+  }
+  to {
+    opacity: 1;
+    transform: scale(1);
+  }
+}
+
+/* Active Node Pulse Animation */
+@keyframes pulse {
+  0%, 100% {
+    opacity: 1;
+    transform: scale(1.05);
+  }
+  50% {
+    opacity: 0.9;
+    transform: scale(1.02);
+  }
+}
+
+/* Data Flow Animation */
+.animate-flow {
+  .bg-gradient-to-b {
+    animation: flowGradient 1.5s ease infinite;
+  }
+}
+
+.animate-flow-dot {
+  animation: flowDot 0.8s ease-in-out;
+}
+
+@keyframes flowGradient {
+  0% {
+    opacity: 0.3;
+  }
+  50% {
+    opacity: 1;
+  }
+  100% {
+    opacity: 0.3;
+  }
+}
+
+@keyframes flowDot {
+  0% {
+    top: 0;
+    opacity: 1;
+  }
+  100% {
+    top: 100%;
+    opacity: 0;
+  }
+}
+
+/* Console Output Animation */
+.console-output {
+  .line {
+    opacity: 0;
+    animation: fadeInUp 0.3s ease forwards;
+  }
+}
+
+@keyframes fadeInUp {
+  from {
+    opacity: 0;
+    transform: translateY(10px);
   }
   to {
     opacity: 1;
