@@ -1,8 +1,19 @@
-import { Component, HostListener, OnInit, ViewChild, ElementRef, AfterViewInit } from '@angular/core';
+import { Component, HostListener, OnInit, ViewChild, ElementRef, AfterViewInit, OnDestroy } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { CdkDragDrop, CdkDrag, DragDropModule, moveItemInArray, transferArrayItem } from '@angular/cdk/drag-drop';
 import { WorkflowService, WorkflowData } from './services/workflow.service';
+import { DomSanitizer, SafeHtml } from '@angular/platform-browser';
+import { Pipe, PipeTransform } from '@angular/core';
+
+@Pipe({ name: 'safeHtml', standalone: true })
+export class SafeHtmlPipe implements PipeTransform {
+  constructor(private sanitizer: DomSanitizer) {}
+  
+  transform(html: string): SafeHtml {
+    return this.sanitizer.bypassSecurityTrustHtml(html);
+  }
+}
 
 interface StepStatus {
   isActive: boolean;
@@ -31,9 +42,9 @@ interface ConsoleOutput {
   templateUrl: './app.component.html',
   styleUrls: ['./app.component.scss'],
   standalone: true,
-  imports: [CommonModule, FormsModule, DragDropModule]
+  imports: [CommonModule, FormsModule, DragDropModule, SafeHtmlPipe]
 })
-export class AppComponent implements OnInit, AfterViewInit {
+export class AppComponent implements OnInit, AfterViewInit, OnDestroy {
   @ViewChild('workflowCanvas') workflowCanvas!: ElementRef;
   
   isScrolled = false;
@@ -59,6 +70,10 @@ export class AppComponent implements OnInit, AfterViewInit {
   sortPredicate = (index: number, item: CdkDrag<WorkflowNode>) => {
     return index > 0; // Prevent dropping at index 0
   };
+
+  currentHighlightedStep = 0;
+  private animationInterval: any;
+  private readonly STEP_DURATION = 3000; // 3 seconds per step
 
   constructor(private workflowService: WorkflowService) {
     this.workflowData = this.workflowService.getInitialWorkflowData();
@@ -241,19 +256,39 @@ export class AppComponent implements OnInit, AfterViewInit {
 
   workflowSteps = [
     {
-      icon: '🎯',
-      title: 'Define Your Workflow',
-      description: 'Map out your process steps and requirements using our visual builder.'
+      icon: `<svg class="w-8 h-8" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+        <path d="M4 7v10c0 2.2 1.8 4 4 4h8c2.2 0 4-1.8 4-4V7c0-2.2-1.8-4-4-4H8c-2.2 0-4 1.8-4 4z" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+        <path d="M8 9h8M8 13h8M8 17h5" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+      </svg>`,
+      iconClass: 'inline-flex items-center justify-center p-4 bg-blue-50 rounded-xl text-blue-600 mb-5',
+      title: '1. Define your data',
+      description: 'Map out your data structure and requirements for your workflow.'
     },
     {
-      icon: '🔄',
-      title: 'Configure Automation',
-      description: 'Set up triggers, actions, and conditions without any coding.'
+      icon: `<svg class="w-8 h-8" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+        <path d="M15 14l5-5-5-5M5 10l10 0M19 19l-5-5m-9 5l10 0" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+      </svg>`,
+      iconClass: 'inline-flex items-center justify-center p-4 bg-purple-50 rounded-xl text-purple-600 mb-5',
+      title: '2. Create a workflow',
+      description: 'Design your automation flow using our intuitive drag-and-drop builder.'
     },
     {
-      icon: '🚀',
-      title: 'Deploy & Monitor',
-      description: 'Launch your workflow and track its performance in real-time.'
+      icon: `<svg class="w-8 h-8" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+        <path d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 012-2h2a2 2 0 012 2M9 5h6M9 12h6m-6 4h4" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+      </svg>`,
+      iconClass: 'inline-flex items-center justify-center p-4 bg-teal-50 rounded-xl text-teal-600 mb-5',
+      title: '3. Generate a List',
+      description: 'Create and manage task lists for your workflow processes.'
+    },
+    {
+      icon: `<svg class="w-8 h-8" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+        <path d="M5.5 7C5.5 5.89543 6.39543 5 7.5 5H16.5C17.6046 5 18.5 5.89543 18.5 7V19C18.5 20.1046 17.6046 21 16.5 21H7.5C6.39543 21 5.5 20.1046 5.5 19V7Z" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+        <path d="M9 9.5H15M9 13.5H15M9 17.5H13" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+        <path d="M12 2V5M8 2V5M16 2V5" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+      </svg>`,
+      iconClass: 'inline-flex items-center justify-center p-4 bg-indigo-50 rounded-xl text-indigo-600 mb-5',
+      title: '4. Execute and Monitor',
+      description: 'Run your workflows and track their performance in real-time.'
     }
   ];
 
@@ -318,6 +353,15 @@ export class AppComponent implements OnInit, AfterViewInit {
     }, 100);
   }
 
+  private resetWorkflow() {
+    // Keep only the start node
+    const startNode = this.workflowNodes[0];
+    this.workflowNodes = [startNode];
+    this.initializeStepStatuses();
+    this.consoleOutput = [];
+    this.centerView();
+  }
+
   async simulateWorkflow() {
     this.isSimulating = true;
     this.consoleOutput = []; // Clear previous output
@@ -367,6 +411,16 @@ export class AppComponent implements OnInit, AfterViewInit {
     this.isSimulating = false;
     this.currentSimulationStep = -1;
     this.addConsoleOutput('🎉 Workflow simulation completed successfully!', 'success');
+
+    // Start countdown for reset
+    this.addConsoleOutput('⏳ Resetting workflow in 5 seconds...', 'info');
+    for (let i = 5; i > 0; i--) {
+      await new Promise(resolve => setTimeout(resolve, 1000));
+      this.addConsoleOutput(`   ${i}...`, 'info');
+    }
+
+    // Reset the workflow
+    this.resetWorkflow();
   }
 
   isNodeActive(index: number): boolean {
@@ -413,7 +467,25 @@ export class AppComponent implements OnInit, AfterViewInit {
   }
 
   ngOnInit() {
-    // Initialize any required properties
+    this.startStepAnimation();
+  }
+
+  ngOnDestroy() {
+    if (this.animationInterval) {
+      clearInterval(this.animationInterval);
+    }
+  }
+
+  private startStepAnimation() {
+    // Clear any existing interval
+    if (this.animationInterval) {
+      clearInterval(this.animationInterval);
+    }
+
+    // Start the animation cycle
+    this.animationInterval = setInterval(() => {
+      this.currentHighlightedStep = (this.currentHighlightedStep + 1) % this.workflowSteps.length;
+    }, this.STEP_DURATION);
   }
 
   startPan(event: MouseEvent) {

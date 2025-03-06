@@ -1233,4 +1233,140 @@
 
 .workflow-list.cdk-drop-list-dragging .workflow-node:not(.cdk-drag-placeholder) {
   transition: transform 250ms cubic-bezier(0, 0, 0.2, 1);
+}
+
+@keyframes highlight-border {
+  0% {
+    border-color: transparent;
+    box-shadow: 0 0 0 rgba(99, 102, 241, 0);
+  }
+  50% {
+    border-color: #6366f1;
+    box-shadow: 0 0 15px rgba(99, 102, 241, 0.3);
+  }
+  100% {
+    border-color: transparent;
+    box-shadow: 0 0 0 rgba(99, 102, 241, 0);
+  }
+}
+
+@keyframes progress-line {
+  0% {
+    background-position: -200% 0;
+  }
+  100% {
+    background-position: 200% 0;
+  }
+}
+
+.animate-highlight {
+  animation: highlight-border 3s ease-in-out;
+}
+
+.animate-progress-line {
+  background: linear-gradient(
+    90deg,
+    transparent 0%,
+    rgba(99, 102, 241, 0.1) 25%,
+    rgba(99, 102, 241, 0.2) 50%,
+    rgba(99, 102, 241, 0.1) 75%,
+    transparent 100%
+  );
+  background-size: 200% 100%;
+  animation: progress-line 3s linear infinite;
+}
+
+.workflow-steps {
+  .step {
+    position: relative;
+    overflow: hidden;
+    
+    &.active {
+      .step-content {
+        transform: scale(1.02);
+      }
+      
+      .step-icon {
+        transform: scale(1.1);
+      }
+    }
+    
+    .step-content {
+      transition: transform 0.3s ease;
+    }
+    
+    .step-icon {
+      transition: transform 0.3s ease;
+    }
+  }
+}
+
+// Enhance icon visibility
+.workflow-steps svg {
+  width: 2rem;
+  height: 2rem;
+  stroke-width: 2;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+  transition: transform 0.3s ease;
+  
+  &:hover {
+    transform: scale(1.1);
+  }
+}
+
+.step-card {
+  position: relative;
+  padding: 2rem;
+  background: white;
+  border: 1px solid #e5e7eb;
+  border-radius: 1rem;
+  transition: all 0.3s ease;
+  overflow: hidden;
+  box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1),
+              0 2px 4px -1px rgba(0, 0, 0, 0.06);
+
+  &.active {
+    transform: scale(1.02);
+    border-color: #4F46E5;
+    box-shadow: 0 8px 16px -1px rgba(79, 70, 229, 0.2),
+                0 4px 8px -1px rgba(79, 70, 229, 0.1);
+
+    .progress-line .progress-indicator {
+      width: 100%;
+      transition: width 3s linear;
+    }
+
+    svg {
+      transform: scale(1.1);
+      color: #4F46E5;
+      transition: all 0.3s ease;
+    }
+  }
+
+  .progress-line {
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    height: 4px;
+    background: #f3f4f6;
+    overflow: hidden;
+
+    .progress-indicator {
+      width: 0;
+      height: 100%;
+      background: #4F46E5;
+      transition: width 0.3s ease-out;
+    }
+  }
+
+  svg {
+    width: 2rem;
+    height: 2rem;
+    stroke-width: 2;
+    stroke-linecap: round;
+    stroke-linejoin: round;
+    transition: all 0.3s ease;
+  }
 } 
