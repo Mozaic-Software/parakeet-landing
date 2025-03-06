@@ -1,7 +1,7 @@
-import { Component, HostListener, OnInit, ViewChild, ElementRef } from '@angular/core';
+import { Component, HostListener, OnInit, ViewChild, ElementRef, AfterViewInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
-import { CdkDragDrop, DragDropModule, moveItemInArray, transferArrayItem } from '@angular/cdk/drag-drop';
+import { CdkDragDrop, CdkDrag, DragDropModule, moveItemInArray, transferArrayItem } from '@angular/cdk/drag-drop';
 import { WorkflowService, WorkflowData } from './services/workflow.service';
 
 interface StepStatus {
@@ -33,7 +33,7 @@ interface ConsoleOutput {
   standalone: true,
   imports: [CommonModule, FormsModule, DragDropModule]
 })
-export class AppComponent implements OnInit {
+export class AppComponent implements OnInit, AfterViewInit {
   @ViewChild('workflowCanvas') workflowCanvas!: ElementRef;
   
   isScrolled = false;
@@ -45,7 +45,7 @@ export class AppComponent implements OnInit {
   workflowNodes: WorkflowNode[] = [];
   searchQuery: string = '';
 
-  // Panning and zooming
+  // Panning state
   isPanning = false;
   panStart = { x: 0, y: 0 };
   panPosition = { x: 0, y: 0 };
@@ -54,6 +54,11 @@ export class AppComponent implements OnInit {
   readonly ZOOM_STEP = 0.1;
   readonly MIN_ZOOM = 0.5;
   readonly MAX_ZOOM = 2;
+
+  // Add this near the top of the class with other properties
+  sortPredicate = (index: number, item: CdkDrag<WorkflowNode>) => {
+    return index > 0; // Prevent dropping at index 0
+  };
 
   constructor(private workflowService: WorkflowService) {
     this.workflowData = this.workflowService.getInitialWorkflowData();
@@ -172,19 +177,66 @@ export class AppComponent implements OnInit {
   }
 
   onDrop(event: CdkDragDrop<WorkflowNode[]>) {
-    if (event.previousContainer === event.container) {
-      moveItemInArray(event.container.data, event.previousIndex, event.currentIndex);
-    } else {
-      const node = event.previousContainer.data[event.previousIndex];
-      const newNode = {
-        ...node,
-        instanceId: `node_${this.workflowNodes.length + 1}`,
-        // Remove badge when added to workflow
-        badgeClass: '',
-        source: ''
-      };
-      this.workflowNodes.push(newNode);
+    if (!event.isPointerOverContainer) {
+      return;
     }
+
+    if (event.previousContainer === event.container) {
+      // Reordering within workflow
+      if (event.previousIndex === 0 || event.currentIndex === 0) {
+        return; // Prevent moving Start node or moving items to position 0
+      }
+
+      // Get the actual target index, accounting for the Start node
+      const targetIndex = Math.max(1, event.currentIndex);
+      const sourceIndex = event.previousIndex;
+
+      // Move the item
+      const nodeToMove = this.workflowNodes[sourceIndex];
+      this.workflowNodes.splice(sourceIndex, 1);
+      this.workflowNodes.splice(targetIndex, 0, nodeToMove);
+    } else {
+      // Adding new node from components panel
+      const nodeData = event.item.data;
+      const insertIndex = Math.max(1, event.currentIndex); // Ensure we never insert at 0
+      
+      const newNode: WorkflowNode = {
+        ...nodeData,
+        instanceId: `step_${this.workflowNodes.length}`
+      };
+
+      this.workflowNodes.splice(insertIndex, 0, newNode);
+    }
+
+    // Update IDs and status
+    this.updateNodeIds();
+    this.initializeStepStatuses();
+    
+    // Reset search
+    this.searchQuery = '';
+  }
+
+  private updateNodeIds() {
+    // Keep Start node as is
+    const startNode = this.workflowNodes[0];
+    
+    // Update remaining nodes
+    for (let i = 1; i < this.workflowNodes.length; i++) {
+      this.workflowNodes[i].instanceId = `step_${i}`;
+    }
+  }
+
+  // Helper method to update view
+  private updateView() {
+    setTimeout(() => {
+      const canvas = document.querySelector('.workflow-list');
+      if (canvas) {
+        canvas.scrollTo({
+          top: canvas.scrollHeight,
+          behavior: 'smooth'
+        });
+      }
+    }, 0);
   }
 
   workflowSteps = [
@@ -253,166 +305,68 @@ export class AppComponent implements OnInit {
     }));
   }
 
-  // Add auto-panning functionality
-  private autoPanToNode(index: number) {
+  ngAfterViewInit() {
+    // Initial setup
+  }
+
+  private scrollToActiveNode() {
     setTimeout(() => {
-      const nodeElement = document.querySelector(`[data-node-index="${index}"]`);
-      if (nodeElement) {
-        nodeElement.scrollIntoView({ behavior: 'smooth', block: 'center' });
+      const activeNode = this.workflowCanvas.nativeElement.querySelector('.workflow-node.active');
+      if (activeNode) {
+        activeNode.scrollIntoView({ behavior: 'smooth', block: 'center' });
       }
     }, 100);
   }
 
-  ngOnInit() {
-    // Initialize any additional setup if needed
-  }
-
-  startPan(event: MouseEvent) {
-    // Always handle right-click pan
-    if (event.button === 2) {
-      event.preventDefault();
-      this.isPanning = true;
-      this.panStart = {
-        x: event.clientX - this.lastPanPosition.x,
-        y: event.clientY - this.lastPanPosition.y
-      };
-    }
-  }
-
-  pan(event: MouseEvent) {
-    if (this.isPanning) {
-      event.preventDefault();
-      // Use requestAnimationFrame for smooth panning
-      requestAnimationFrame(() => {
-        this.panPosition = {
-          x: event.clientX - this.panStart.x,
-          y: event.clientY - this.panStart.y
-        };
-      });
-    }
-  }
-
-  endPan() {
-    this.isPanning = false;
-    this.lastPanPosition = { ...this.panPosition };
-  }
-
-  private zoom(delta: number, event?: MouseEvent) {
-    const newZoom = Math.max(this.MIN_ZOOM, Math.min(this.MAX_ZOOM, this.zoomLevel + delta));
-    if (newZoom !== this.zoomLevel) {
-      // Calculate the point to zoom towards (usually the mouse position)
-      const canvas = this.workflowCanvas.nativeElement;
-      const rect = canvas.getBoundingClientRect();
-      const x = (event && event.clientX ? event.clientX - rect.left : rect.width / 2);
-      const y = (event && event.clientY ? event.clientY - rect.top : rect.height / 2);
-
-      // Calculate new position to keep the point under the mouse
-      const scale = newZoom / this.zoomLevel;
-      this.panPosition = {
-        x: x - (x - this.panPosition.x) * scale,
-        y: y - (y - this.panPosition.y) * scale
-      };
-      this.lastPanPosition = { ...this.panPosition };
-      this.zoomLevel = newZoom;
-    }
-  }
-
-  handleZoom(event: WheelEvent) {
-    // Always handle zoom when mouse is in the workflow area
-    event.preventDefault();
-    const delta = event.deltaY > 0 ? -this.ZOOM_STEP : this.ZOOM_STEP;
-    this.zoom(delta, event);
-  }
-
-  zoomIn() {
-    this.zoom(this.ZOOM_STEP);
-  }
-
-  zoomOut() {
-    this.zoom(-this.ZOOM_STEP);
-  }
-
   async simulateWorkflow() {
-    if (this.isSimulating) return;
-    
     this.isSimulating = true;
-    this.consoleOutput = [];
-    this.initializeStepStatuses();
-    
-    try {
-      for (let i = 0; i < this.workflowNodes.length; i++) {
-        const node = this.workflowNodes[i];
-        
-        // Update status to active
-        this.stepStatuses[i] = {
-          isActive: true,
-          isCompleted: false,
-          isAnimatingFlow: false
-        };
-        
-        // Keep active node in view
-        this.scrollNodeIntoView(i);
-        
-        // Log start of processing
-        this.consoleOutput = [...this.consoleOutput, { type: 'status', text: `\n⚡ Processing ${node.label}...` }];
-        await this.delay(1000);
-        
-        // Process the node
-        this.consoleOutput = [...this.consoleOutput, { type: 'status', text: `➡️ Applying workflow step` }];
-        this.workflowData = node.processData(this.workflowData);
-        await this.delay(500);
-        
-        // Mark as completed and animate flow
-        this.consoleOutput = [...this.consoleOutput, { type: 'success', text: `✅ ${node.label} completed` }];
-        this.stepStatuses[i] = {
-          isActive: false,
-          isCompleted: true,
-          isAnimatingFlow: i < this.workflowNodes.length - 1
-        };
-        
-        // Scroll console to bottom
-        this.scrollConsole();
-        await this.delay(1000);
-      }
+    this.consoleOutput = []; // Clear previous output
+    const totalNodes = this.workflowNodes.length;
+
+    // Add initial console output
+    this.addConsoleOutput('🚀 Starting workflow simulation...', 'info');
+    this.addConsoleOutput('📋 Preparing execution plan...', 'status');
+
+    for (let i = 0; i < totalNodes; i++) {
+      this.currentSimulationStep = i;
+      const node = this.workflowNodes[i];
+      const stepNumber = i === 0 ? 'Start' : i;
       
-      this.consoleOutput = [...this.consoleOutput, { type: 'success', text: `\n✨ Workflow execution completed!` }];
-    } catch (error: any) {
-      this.consoleOutput = [...this.consoleOutput, { type: 'error', text: `\n❌ Error: ${error.message || 'Unknown error occurred'}` }];
-    } finally {
-      this.isSimulating = false;
-      this.scrollConsole();
-    }
-  }
-
-  private scrollNodeIntoView(index: number) {
-    // Don't animate the start node
-    if (index === 0) return;
-
-    const nodeElement = document.querySelector(`[data-node-index="${index}"]`);
-    if (nodeElement && this.workflowCanvas) {
-      const canvas = this.workflowCanvas.nativeElement;
-      const canvasRect = canvas.getBoundingClientRect();
-      const nodeRect = nodeElement.getBoundingClientRect();
-
-      // Calculate the target position to center the node
-      const targetX = -((nodeRect.left - canvasRect.left) + (nodeRect.width / 2) - (canvasRect.width / 2)) / this.zoomLevel;
-      const targetY = -((nodeRect.top - canvasRect.top) + (nodeRect.height / 2) - (canvasRect.height / 2)) / this.zoomLevel;
-
-      // Directly set the position without animation for smoother workflow execution
-      this.panPosition = {
-        x: targetX,
-        y: targetY
+      // Update step status
+      this.stepStatuses[i] = {
+        isActive: true,
+        isCompleted: false,
+        isAnimatingFlow: false
       };
-      this.lastPanPosition = { ...this.panPosition };
-    }
-  }
 
-  private async scrollConsole() {
-    await this.delay(50); // Small delay to ensure DOM update
-    const consoleElement = document.querySelector('.bg-gray-900.overflow-y-auto');
-    if (consoleElement) {
-      consoleElement.scrollTop = consoleElement.scrollHeight;
+      // Add console output for current step
+      this.addConsoleOutput(`⚡ Executing Step ${stepNumber}: ${node.label}`, 'status');
+      this.addConsoleOutput(`   ⏳ Processing...`, 'info');
+      
+      // Scroll to active node
+      this.scrollToActiveNode();
+      
+      // Simulate processing time
+      await new Promise(resolve => setTimeout(resolve, 2000));
+      
+      // Update step status to completed
+      this.stepStatuses[i] = {
+        isActive: false,
+        isCompleted: true,
+        isAnimatingFlow: i < totalNodes - 1
+      };
+
+      // Add completion message
+      this.addConsoleOutput(`   ✅ Step ${stepNumber} completed successfully!`, 'success');
+      
+      if (i < totalNodes - 1) {
+        this.addConsoleOutput(`   ⏭️  Moving to next step...`, 'info');
+      }
     }
+
+    this.isSimulating = false;
+    this.currentSimulationStep = -1;
+    this.addConsoleOutput('🎉 Workflow simulation completed successfully!', 'success');
   }
 
   isNodeActive(index: number): boolean {
@@ -425,10 +379,6 @@ export class AppComponent implements OnInit {
 
   isFlowAnimating(index: number): boolean {
     return this.stepStatuses[index]?.isAnimatingFlow || false;
-  }
-
-  private async delay(ms: number) {
-    await new Promise(resolve => setTimeout(resolve, ms));
   }
 
   // Prevent context menu on right click
@@ -452,5 +402,46 @@ export class AppComponent implements OnInit {
 
   private addConsoleOutput(text: string, type: ConsoleOutput['type'] = 'info') {
     this.consoleOutput.push({ text, type });
+    
+    // Scroll console to bottom
+    setTimeout(() => {
+      const consoleContent = document.querySelector('.console-content');
+      if (consoleContent) {
+        consoleContent.scrollTop = consoleContent.scrollHeight;
+      }
+    }, 0);
+  }
+
+  ngOnInit() {
+    // Initialize any required properties
+  }
+
+  startPan(event: MouseEvent) {
+    // Handle right-click pan
+    if (event.button === 2) {
+      event.preventDefault();
+      this.isPanning = true;
+      this.panStart = {
+        x: event.clientX - this.lastPanPosition.x,
+        y: event.clientY - this.lastPanPosition.y
+      };
+    }
+  }
+
+  pan(event: MouseEvent) {
+    if (this.isPanning) {
+      event.preventDefault();
+      requestAnimationFrame(() => {
+        this.panPosition = {
+          x: event.clientX - this.panStart.x,
+          y: event.clientY - this.panStart.y
+        };
+      });
+    }
+  }
+
+  endPan() {
+    this.isPanning = false;
+    this.lastPanPosition = { ...this.panPosition };
   }
 }

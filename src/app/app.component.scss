@@ -664,6 +664,80 @@
   > div {
     transition: all 0.3s ease;
   }
+
+  &.active {
+    > div {
+      border-color: #4F46E5;
+      background: rgba(238, 242, 255, 0.5);
+      position: relative;
+      
+      &::after {
+        content: '';
+        position: absolute;
+        top: -6px;
+        right: -6px;
+        width: 24px;
+        height: 24px;
+        border-radius: 50%;
+        border: 2px solid #4F46E5;
+        border-top-color: transparent;
+        animation: spin 1s linear infinite;
+        box-shadow: 0 2px 4px rgba(79, 70, 229, 0.2);
+      }
+    }
+
+    &:not(:last-child)::after {
+      background: linear-gradient(to bottom, #4F46E5 0%, #818CF8 100%);
+      animation: flowPulse 2s ease-in-out infinite;
+    }
+  }
+
+  &.completed {
+    > div {
+      border-color: #10B981;
+      background: rgba(236, 253, 245, 0.5);
+      
+      &::after {
+        content: '✓';
+        position: absolute;
+        top: -6px;
+        right: -6px;
+        width: 24px;
+        height: 24px;
+        background: #10B981;
+        border-radius: 50%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        color: white;
+        font-size: 14px;
+        box-shadow: 0 2px 4px rgba(16, 185, 129, 0.2);
+        animation: badgePop 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275) forwards;
+      }
+    }
+
+    &:not(:last-child)::after {
+      background: #10B981;
+    }
+  }
+}
+
+@keyframes spin {
+  from {
+    transform: rotate(0deg);
+  }
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+@keyframes badgePop {
+  0% {
+    transform: scale(0);
+  }
+  100% {
+    transform: scale(1);
+  }
 }
 
 /* Workflow Connector Animation */
@@ -692,22 +766,17 @@
   box-shadow: 0 5px 15px rgba(0, 0, 0, 0.15);
   opacity: 0.9;
   background: white;
+  pointer-events: none;
+  z-index: 1000;
 }
 
 .cdk-drag-placeholder {
   opacity: 0.3;
+  pointer-events: none;
 }
 
 .cdk-drag-animating {
-  transition: transform 150ms cubic-bezier(0.4, 0, 0.2, 1);
-}
-
-.workflow-node {
-  transition: transform 150ms cubic-bezier(0.4, 0, 0.2, 1);
-  
-  &.cdk-drag-placeholder {
-    opacity: 0.3;
-  }
+  transition: transform 250ms cubic-bezier(0.4, 0, 0.2, 1);
 }
 
 .workflow-list.cdk-drop-list-dragging .workflow-node:not(.cdk-drag-placeholder) {
@@ -755,34 +824,20 @@
   }
 }
 
-/* Workflow node active state */
-.workflow-node {
-  &.active > div {
-    @apply ring-2 ring-indigo-500 ring-offset-2 scale-105;
-    animation: pulse 2s cubic-bezier(0.4, 0, 0.6, 1) infinite;
-  }
-  
-  &.completed > div {
-    @apply ring-2 ring-green-500 ring-offset-2;
-    transition: all 0.3s ease;
-  }
-}
-
 /* Console Output Styles */
 .console-output {
   margin-top: 1rem;
-  height: 200px;
+  height: 400px;
   background: #1a1f36;
   color: #e2e8f0;
   font-family: monospace;
   font-size: 14px;
   border-radius: 8px;
   overflow: hidden;
+  display: flex;
+  flex-direction: column;
   
   .console-header {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
     padding: 8px 12px;
     background: rgba(255, 255, 255, 0.1);
     border-bottom: 1px solid rgba(255, 255, 255, 0.1);
@@ -796,7 +851,7 @@
   }
   
   .console-content {
-    height: calc(100% - 37px);
+    flex: 1;
     overflow-y: auto;
     padding: 12px;
     
@@ -804,6 +859,7 @@
       padding: 4px 0;
       white-space: pre-wrap;
       font-family: 'Consolas', 'Monaco', monospace;
+      animation: fadeInUp 0.3s ease forwards;
       
       &.success { color: #48bb78; }
       &.error { color: #f56565; }
@@ -813,55 +869,6 @@
   }
 }
 
-.line:not(.success):not(.info):not(.status) {
-  color: #94A3B8;
-  
-  &[class*="done"] {
-    color: #34D399;
-  }
-  
-  &[class*="..."] {
-    &::after {
-      content: '';
-      display: inline-block;
-      width: 4px;
-      height: 4px;
-      margin-left: 8px;
-      background-color: currentColor;
-      border-radius: 50%;
-      animation: pulse 1s infinite;
-      opacity: 0.7;
-    }
-  }
-}
-
-@keyframes pulse {
-  0% {
-    transform: scale(0.8);
-    opacity: 0.5;
-  }
-  50% {
-    transform: scale(1.2);
-    opacity: 1;
-  }
-  100% {
-    transform: scale(0.8);
-    opacity: 0.5;
-  }
-}
-
-@keyframes fadeInUp {
-  from {
-    opacity: 0;
-    transform: translateY(8px);
-  }
-  to {
-    opacity: 1;
-    transform: translateY(0);
-  }
-}
-
-/* Loading spinner animation */
 @keyframes spin {
   from {
     transform: rotate(0deg);
@@ -871,6 +878,18 @@
   }
 }
 
+@keyframes fadeInUp {
+  from {
+    opacity: 0;
+    transform: translateY(10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+/* Loading spinner animation */
 .animate-spin {
   animation: spin 1s linear infinite;
 }
@@ -990,8 +1009,8 @@
 /* Workflow Canvas */
 .workflow-canvas {
   position: relative;
-  width: 100%;
-  height: 600px;
+  height: 800px;
+  overflow: hidden;
   background-color: #f9fafb;
   background-image: 
     linear-gradient(to right, rgba(55, 65, 81, 0.05) 1px, transparent 1px),
@@ -999,30 +1018,32 @@
   background-size: 20px 20px;
   border-radius: 8px;
   border: 1px solid rgba(0, 0, 0, 0.1);
-  overflow: hidden;
+  display: flex;
 }
 
 /* Components Panel */
 .components-panel {
-  position: absolute;
-  top: 16px;
-  left: 16px;
+  position: relative;
   width: 280px;
-  max-height: 480px;
+  height: 100%;
   background: white;
-  border-radius: 8px;
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
-  border: 1px solid rgba(0, 0, 0, 0.1);
-  overflow: hidden;
+  border-right: 1px solid #e5e7eb;
   z-index: 10;
+  display: flex;
+  flex-direction: column;
+  flex-shrink: 0;
   
   .search-container {
+    position: sticky;
+    top: 0;
     padding: 12px;
     border-bottom: 1px solid #e5e7eb;
+    background: white;
+    z-index: 1;
   }
   
   .components-list {
-    max-height: calc(100% - 60px);
+    flex: 1;
     overflow-y: auto;
     padding: 12px;
   }
@@ -1030,59 +1051,137 @@
 
 /* Floating Controls */
 .floating-controls {
-  position: absolute;
-  bottom: 16px;
-  right: 16px;
-  background: white;
-  border-radius: 8px;
-  padding: 8px;
-  display: flex;
-  flex-direction: column;
-  gap: 8px;
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
-  width: 40px;
-  z-index: 10;
-  
-  button {
-    width: 24px;
-    height: 24px;
-    padding: 4px;
-    border-radius: 4px;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    color: #6B7280;
-    transition: all 0.2s;
-    
-    &:hover {
-      background: rgba(79, 70, 229, 0.1);
-      color: #4F46E5;
-    }
-  }
-
-  .zoom-level {
-    font-size: 12px;
-    text-align: center;
-    color: #6B7280;
-  }
+  display: none;
 }
 
 /* Workflow List */
 .workflow-list {
-  padding: 2rem;
+  flex: 1;
   height: 100%;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
+  overflow-y: auto;
+  padding: 2rem;
   
-  .workflow-node {
-    width: 100%;
-    max-width: 400px;
-    margin-bottom: 2rem;
+  .workflow-nodes-container {
+    position: relative;
+    transform-origin: 0 0;
+    transition: transform 0.05s ease-out;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    min-height: 100%;
     
-    &:last-child {
-      margin-bottom: 0;
+    .workflow-node {
+      width: 100%;
+      max-width: 400px;
+      margin-bottom: 2rem;
+      position: relative;
+      
+      &:not(:last-child)::after {
+        content: '';
+        position: absolute;
+        left: 50%;
+        bottom: -2rem;
+        transform: translateX(-50%);
+        width: 2px;
+        height: 2rem;
+        background: #E5E7EB;
+        z-index: 0;
+      }
+
+      &.active {
+        &:not(:last-child)::after {
+          background: linear-gradient(to bottom, #4F46E5 0%, #818CF8 100%);
+          animation: flowPulse 2s ease-in-out infinite;
+        }
+        
+        > div {
+          border-color: #4F46E5;
+          background: rgba(238, 242, 255, 0.5);
+          
+          &::after {
+            content: '';
+            position: absolute;
+            top: -6px;
+            right: -6px;
+            width: 24px;
+            height: 24px;
+            border-radius: 50%;
+            background: #4F46E5;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            box-shadow: 0 2px 4px rgba(79, 70, 229, 0.2);
+            background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' fill='none' viewBox='0 0 24 24'%3E%3Cpath stroke='white' stroke-linecap='round' stroke-linejoin='round' stroke-width='2' d='M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z'%3E%3C/path%3E%3C/svg%3E");
+            background-position: center;
+            background-repeat: no-repeat;
+            background-size: 16px;
+            animation: spin 1s linear infinite;
+          }
+        }
+      }
+      
+      &.completed {
+        &:not(:last-child)::after {
+          background: #10B981;
+        }
+        
+        > div {
+          border-color: #10B981;
+          background: rgba(236, 253, 245, 0.5);
+          
+          &::after {
+            content: '✓';
+            position: absolute;
+            top: -6px;
+            right: -6px;
+            width: 24px;
+            height: 24px;
+            background: #10B981;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-size: 14px;
+            box-shadow: 0 2px 4px rgba(16, 185, 129, 0.2);
+            animation: badgePop 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275) forwards;
+          }
+        }
+      }
+      
+      &:last-child {
+        margin-bottom: 0;
+      }
     }
+  }
+}
+
+@keyframes spin {
+  from {
+    transform: rotate(0deg);
+  }
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+@keyframes badgePop {
+  0% {
+    transform: scale(0);
+  }
+  100% {
+    transform: scale(1);
+  }
+}
+
+@keyframes flowPulse {
+  0%, 100% {
+    opacity: 0.3;
+    transform: scaleY(1);
+  }
+  50% {
+    opacity: 0.6;
+    transform: scaleY(1.1);
   }
 }
 
