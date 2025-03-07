@@ -37,6 +37,18 @@ interface ConsoleOutput {
   text: string;
 }
 
+interface FaqItem {
+  question: string;
+  answer: string;
+  isOpen?: boolean;
+}
+
+interface FaqCategory {
+  title: string;
+  icon: string;
+  items: FaqItem[];
+}
+
 @Component({
   selector: 'app-root',
   templateUrl: './app.component.html',
@@ -55,6 +67,7 @@ export class AppComponent implements OnInit, AfterViewInit, OnDestroy {
   stepStatuses: StepStatus[] = [];
   workflowNodes: WorkflowNode[] = [];
   searchQuery: string = '';
+  currentYear = new Date().getFullYear();
 
   // Panning state
   isPanning = false;
@@ -74,6 +87,8 @@ export class AppComponent implements OnInit, AfterViewInit, OnDestroy {
   currentHighlightedStep = 0;
   private animationInterval: any;
   private readonly STEP_DURATION = 3000; // 3 seconds per step
+
+  faqSearchQuery: string = '';
 
   constructor(private workflowService: WorkflowService) {
     this.workflowData = this.workflowService.getInitialWorkflowData();
@@ -317,18 +332,76 @@ export class AppComponent implements OnInit, AfterViewInit, OnDestroy {
     }
   ];
 
-  faqs = [
+  faqCategories: FaqCategory[] = [
     {
-      question: 'How does the no-code automation work?',
-      answer: 'Our visual workflow builder lets you drag and drop components to create complex automations without writing any code.'
+      title: 'General Questions',
+      icon: '<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9.663 17h4.673M12 3v1m6.364 1.636l-.707.707M21 12h-1M4 12H3m3.343-5.657l-.707-.707m2.828 9.9a5 5 0 117.072 0l-.548.547A3.374 3.374 0 0014 18.469V19a2 2 0 11-4 0v-.531c0-.895-.356-1.754-.988-2.386l-.548-.547z" />',
+      items: [
+        {
+          question: 'What is Parakeet Workflow Automation?',
+          answer: "Parakeet is a no-code workflow automation platform designed to help courts, justice administration, and clerks streamline case management, approvals, and inter-agency workflows—without requiring IT support."
+        },
+        {
+          question: 'Who can use Parakeet?',
+          answer: "Parakeet is built for courts (State, County, and Municipal), justice administration offices, court clerks, case processing teams, and other judicial stakeholders & justice partners."
+        }
+      ]
     },
     {
-      question: 'What kind of support do you offer?',
-      answer: 'We provide comprehensive documentation, email support, and dedicated account managers for enterprise customers.'
+      title: 'Features & Functionality',
+      icon: '<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z" /><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />',
+      items: [
+        {
+          question: 'What are the key features of Parakeet?',
+          answer: "Parakeet offers a no-code workflow builder, real-time automation, case management integration, secure document handling, and comprehensive audit trails."
+        },
+        {
+          question: 'Can I customize workflows for my specific needs?',
+          answer: "Yes, Parakeet provides a flexible drag-and-drop interface that allows you to create custom workflows tailored to your court's specific processes and requirements."
+        }
+      ]
     },
     {
-      question: 'Is my data secure?',
-      answer: 'Yes, we use bank-level encryption and comply with industry security standards to protect your data.'
+      title: 'Integrations & Compatibility',
+      icon: '<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 3v2m6-2v2M9 19v2m6-2v2M5 9H3m2 6H3m18-6h-2m2 6h-2M7 19h10a2 2 0 002-2V7a2 2 0 00-2-2H7a2 2 0 00-2 2v10a2 2 0 002 2zM9 9h6v6H9V9z" />',
+      items: [
+        {
+          question: 'Which case management systems does Parakeet integrate with?',
+          answer: "Parakeet integrates with major case management systems and provides flexible APIs for custom integrations with your existing tools and databases."
+        },
+        {
+          question: 'Is it compatible with our existing document management system?',
+          answer: "Yes, Parakeet is designed to work seamlessly with popular document management systems and can be configured to support your specific document handling requirements."
+        }
+      ]
+    },
+    {
+      title: 'Security & Compliance',
+      icon: '<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z" />',
+      items: [
+        {
+          question: 'How does Parakeet ensure data security?',
+          answer: "Parakeet employs enterprise-grade security measures including end-to-end encryption, role-based access control, and regular security audits to protect sensitive court data."
+        },
+        {
+          question: 'Does Parakeet comply with judicial data regulations?',
+          answer: "Yes, Parakeet is built to comply with relevant judicial data handling regulations and can be configured to meet specific compliance requirements."
+        }
+      ]
+    },
+    {
+      title: 'Support & Training',
+      icon: '<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M18.364 5.636l-3.536 3.536m0 5.656l3.536 3.536M9.172 9.172L5.636 5.636m3.536 9.192l-3.536 3.536M21 12a9 9 0 11-18 0 9 9 0 0118 0zm-5 0a4 4 0 11-8 0 4 4 0 018 0z" />',
+      items: [
+        {
+          question: 'What kind of support is available?',
+          answer: "We provide comprehensive support including dedicated customer success managers, technical support, and regular check-ins to ensure your success."
+        },
+        {
+          question: 'Is training provided for new users?',
+          answer: "Yes, we offer thorough onboarding training, ongoing education sessions, and a comprehensive knowledge base to help your team succeed."
+        }
+      ]
     }
   ];
 
@@ -522,5 +595,34 @@ export class AppComponent implements OnInit, AfterViewInit, OnDestroy {
   endPan() {
     this.isPanning = false;
     this.lastPanPosition = { ...this.panPosition };
+  }
+
+  toggleFaq(category: FaqCategory, item: FaqItem) {
+    // Close all other items in all categories
+    this.faqCategories.forEach(cat => {
+      cat.items.forEach(faqItem => {
+        if (faqItem !== item) {
+          faqItem.isOpen = false;
+        }
+      });
+    });
+    // Toggle the clicked item
+    item.isOpen = !item.isOpen;
+  }
+
+  // Add this method for FAQ search
+  getFilteredFaqs(): FaqCategory[] {
+    if (!this.faqSearchQuery) {
+      return this.faqCategories;
+    }
+
+    const query = this.faqSearchQuery.toLowerCase();
+    return this.faqCategories.map(category => ({
+      ...category,
+      items: category.items.filter(item => 
+        item.question.toLowerCase().includes(query) ||
+        item.answer.toLowerCase().includes(query)
+      )
+    })).filter(category => category.items.length > 0);
   }
 }
