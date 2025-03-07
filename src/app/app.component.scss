@@ -1020,43 +1020,9 @@
 .workflow-canvas {
   position: relative;
   width: 100%;
-  background: #fff;
+  background-color: #ffffff;
   border-radius: 0.75rem;
-}
-
-/* Components Panel */
-.components-panel {
-  position: relative;
-  width: 280px;
-  height: 100%;
-  background: white;
-  border-right: 1px solid #e5e7eb;
-  z-index: 10;
-  display: flex;
-  flex-direction: column;
-  flex-shrink: 0;
-  border: 1px solid #e5e7eb;
-  border-radius: 0.5rem;
-  
-  .search-container {
-    position: sticky;
-    top: 0;
-    padding: 12px;
-    border-bottom: 1px solid #e5e7eb;
-    background: white;
-    z-index: 1;
-  }
-  
-  .components-list {
-    flex: 1;
-    overflow-y: auto;
-    padding: 12px;
-  }
-}
-
-/* Floating Controls */
-.floating-controls {
-  display: none;
+  padding: 1.5rem;
 }
 
 /* Workflow List */
@@ -1065,6 +1031,11 @@
   height: 100%;
   overflow-y: auto;
   padding: 2rem;
+  background-color: #ffffff;
+  background-image: 
+    linear-gradient(rgba(79, 70, 229, 0.1) 1px, transparent 1px),
+    linear-gradient(to right, rgba(79, 70, 229, 0.1) 1px, transparent 1px);
+  background-size: 30px 30px;
   
   .workflow-nodes-container {
     position: relative;
