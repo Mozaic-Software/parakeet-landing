@@ -7,9 +7,22 @@
     <div class="flex justify-between h-16 items-center">
       <div class="flex-shrink-0">
         <a href="#" class="flex items-center">
-          <span class="text-2xl font-bold bg-gradient-to-r from-indigo-600 to-indigo-800 bg-clip-text text-transparent">Parakeet</span>
+          <span class="text-xl sm:text-2xl font-bold bg-gradient-to-r from-indigo-600 to-indigo-800 bg-clip-text text-transparent">Parakeet</span>
         </a>
       </div>
+      <!-- Mobile Menu Button -->
+      <div class="md:hidden">
+        <button (click)="toggleMobileMenu()" class="p-2 rounded-md text-gray-400 hover:text-gray-500 hover:bg-gray-100 focus:outline-none focus:ring-2 focus:ring-inset focus:ring-indigo-500">
+          <span class="sr-only">{{isMobileMenuOpen ? 'Close menu' : 'Open menu'}}</span>
+          <svg *ngIf="!isMobileMenuOpen" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16" />
+          </svg>
+          <svg *ngIf="isMobileMenuOpen" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
+          </svg>
+        </button>
+      </div>
+      <!-- Desktop Navigation -->
       <div class="hidden md:flex items-center justify-center flex-1 px-8">
         <div class="flex space-x-8">
           <a href="#features" class="text-gray-900 hover:text-indigo-600 font-medium transition-colors duration-200">Features</a>
@@ -18,7 +31,7 @@
           <a href="#faq" class="text-gray-900 hover:text-indigo-600 font-medium transition-colors duration-200">FAQ</a>
         </div>
       </div>
-      <div>
+      <div class="hidden md:block">
         <a href="#waitlist" class="inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md text-white bg-indigo-600 hover:bg-indigo-700 transition-colors duration-200 shadow-sm hover:shadow-md">
           Join Waitlist
           <svg class="w-4 h-4 ml-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -28,10 +41,22 @@
       </div>
     </div>
   </div>
+  <!-- Mobile Menu -->
+  <div class="md:hidden" [ngClass]="{'hidden': !isMobileMenuOpen}">
+    <div class="px-2 pt-2 pb-3 space-y-1 bg-white border-t border-gray-200">
+      <a href="#features" (click)="toggleMobileMenu()" class="block px-3 py-2 rounded-md text-base font-medium text-gray-900 hover:text-indigo-600 hover:bg-gray-50">Features</a>
+      <a href="#workflow" (click)="toggleMobileMenu()" class="block px-3 py-2 rounded-md text-base font-medium text-gray-900 hover:text-indigo-600 hover:bg-gray-50">Workflow</a>
+      <a href="#how-it-works" (click)="toggleMobileMenu()" class="block px-3 py-2 rounded-md text-base font-medium text-gray-900 hover:text-indigo-600 hover:bg-gray-50">How It Works</a>
+      <a href="#faq" (click)="toggleMobileMenu()" class="block px-3 py-2 rounded-md text-base font-medium text-gray-900 hover:text-indigo-600 hover:bg-gray-50">FAQ</a>
+      <a href="#waitlist" (click)="toggleMobileMenu()" class="block px-3 py-2 rounded-md text-base font-medium text-white bg-indigo-600 hover:bg-indigo-700">
+        Join Waitlist
+      </a>
+    </div>
+  </div>
 </nav>
 
 <!-- Hero Section -->
-<section class="relative min-h-screen flex items-center">
+<section class="relative min-h-screen flex items-center pt-16 md:pt-0">
   <div class="hero-section w-full">
     <!-- Animated Background Layers -->
     <div class="workflow-nodes">
@@ -56,32 +81,32 @@
       <div class="text-center">
         <!-- Badge -->
         <div class="inline-flex items-center px-4 py-2 rounded-full bg-white border border-indigo-100 shadow-sm text-indigo-600 scroll-animate">
-          <span class="text-xl mr-2 waving-hand" role="img" aria-label="wave">👋</span>
-          <span class="font-medium">Judicial Workflow Automation</span>
+          <span class="text-lg sm:text-xl mr-2 waving-hand" role="img" aria-label="wave">👋</span>
+          <span class="text-sm sm:text-base font-medium">Judicial Workflow Automation</span>
         </div>
 
         <!-- Main Headline -->
-        <h1 class="hero-heading scroll-animate">
-          <span class="hero-heading-primary block">Automate Workflows</span>
-          <span class="hero-heading-accent block mt-2">Simplify Case Processing</span>
+        <h1 class="hero-heading scroll-animate mt-6">
+          <span class="hero-heading-primary block text-4xl sm:text-5xl md:text-6xl font-extrabold">Automate Workflows</span>
+          <span class="hero-heading-accent block mt-2 text-3xl sm:text-4xl md:text-5xl font-extrabold">Simplify Case Processing</span>
         </h1>
 
         <!-- Subheading -->
-        <p class="mt-6 max-w-2xl mx-auto text-xl text-gray-600 sm:text-2xl leading-relaxed scroll-animate">
+        <p class="mt-6 max-w-2xl mx-auto text-lg sm:text-xl md:text-2xl text-gray-600 leading-relaxed scroll-animate px-4">
           Build powerful case automation flows, streamline your court operations, and eliminate manual processing.
         </p>
 
         <!-- CTA Section -->
-        <div class="mt-12 max-w-xl mx-auto scroll-animate">
-          <form class="hero-form sm:flex justify-center gap-4">
+        <div class="mt-12 max-w-xl mx-auto scroll-animate px-4">
+          <form class="flex flex-col sm:flex-row justify-center gap-4">
             <div class="min-w-0 flex-1">
               <label for="email" class="sr-only">Email address</label>
-              <input type="email" id="email" class="form-input" placeholder="Enter your work email">
+              <input type="email" id="email" class="w-full px-4 py-3 text-base border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500" placeholder="Enter your work email">
             </div>
-            <div class="mt-3 sm:mt-0 sm:ml-3">
-              <button type="submit" class="btn-primary w-full flex items-center justify-center group">
+            <div class="sm:mt-0 sm:ml-3">
+              <button type="submit" class="w-full sm:w-auto px-6 py-3 text-base font-medium rounded-lg text-white bg-indigo-600 hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 transition-all duration-200 flex items-center justify-center">
                 Join Waitlist
-                <svg class="w-4 h-4 ml-2 transition-transform duration-200 group-hover:translate-x-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <svg class="w-4 h-4 ml-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M14 5l7 7m0 0l-7 7m7-7H3" />
                 </svg>
               </button>
@@ -89,21 +114,21 @@
           </form>
 
           <!-- Feature Tags -->
-          <div class="feature-tags">
-            <div class="feature-tag">
-              <svg class="w-5 h-5 mr-2" fill="currentColor" viewBox="0 0 20 20">
+          <div class="feature-tags mt-8 flex flex-wrap justify-center gap-4">
+            <div class="feature-tag text-sm sm:text-base">
+              <svg class="w-4 h-4 sm:w-5 sm:h-5 mr-2" fill="currentColor" viewBox="0 0 20 20">
                 <path fill-rule="evenodd" d="M6.672 1.911a1 1 0 10-1.932.518l.259.966a1 1 0 001.932-.518l-.26-.966zM2.429 4.74a1 1 0 10-.517 1.932l.966.259a1 1 0 00.517-1.932l-.966-.26zm8.814-.569a1 1 0 00-1.415-1.414l-.707.707a1 1 0 101.415 1.415l.707-.708zm-7.071 7.072l.707-.707A1 1 0 003.465 9.12l-.708.707a1 1 0 001.415 1.415zm3.2-5.171a1 1 0 00-1.3 1.3l4 10a1 1 0 001.823.075l1.38-2.759 3.018 3.02a1 1 0 001.414-1.415l-3.019-3.02 2.76-1.379a1 1 0 00-.076-1.822l-10-4z" clip-rule="evenodd"/>
               </svg>
               No-Code Platform
             </div>
-            <div class="feature-tag">
-              <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-5 h-5 mr-2">
+            <div class="feature-tag text-sm sm:text-base">
+              <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-4 h-4 sm:w-5 sm:h-5 mr-2">
                 <path stroke-linecap="round" stroke-linejoin="round" d="m21 7.5-2.25-1.313M21 7.5v2.25m0-2.25-2.25 1.313M3 7.5l2.25-1.313M3 7.5l2.25 1.313M3 7.5v2.25m9 3 2.25-1.313M12 12.75l-2.25-1.313M12 12.75V15m0 6.75 2.25-1.313M12 21.75V19.5m0 2.25-2.25-1.313m0-16.875L12 2.25l2.25 1.313M21 14.25v2.25l-2.25 1.313m-13.5 0L3 16.5v-2.25" />
               </svg>
               Custom Integrations
             </div>
-            <div class="feature-tag">
-              <svg class="w-5 h-5 mr-2" fill="currentColor" viewBox="0 0 20 20">
+            <div class="feature-tag text-sm sm:text-base">
+              <svg class="w-4 h-4 sm:w-5 sm:h-5 mr-2" fill="currentColor" viewBox="0 0 20 20">
                 <path fill-rule="evenodd" d="M2.166 4.999A11.954 11.954 0 0010 1.944 11.954 11.954 0 0017.834 5c.11.65.166 1.32.166 2.001 0 5.225-3.34 9.67-8 11.317C5.34 16.67 2 12.225 2 7c0-.682.057-1.35.166-2.001zm11.541 3.708a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd"/>
               </svg>
               Enterprise Security
@@ -116,18 +141,18 @@
 </section>
 
 <!-- Features Section -->
-<section id="features" class="py-24 bg-white">
+<section id="features" class="py-16 sm:py-24 bg-white">
   <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
     <div class="text-center">
-      <h2 class="text-3xl font-extrabold text-gray-900 sm:text-4xl">
+      <h2 class="text-2xl sm:text-3xl font-extrabold text-gray-900 sm:text-4xl">
         Built for the Modern Court
       </h2>
-      <p class="mt-4 max-w-2xl mx-auto text-xl text-gray-500">
+      <p class="mt-4 max-w-2xl mx-auto text-lg sm:text-xl text-gray-500">
         Everything you need to automate and streamline your judicial processes.
       </p>
     </div>
 
-    <div class="mt-20 grid grid-cols-1 gap-8 sm:grid-cols-2 lg:grid-cols-3">
+    <div class="mt-12 sm:mt-20 grid grid-cols-1 gap-6 sm:gap-8 sm:grid-cols-2 lg:grid-cols-3">
       <!-- Command Center -->
       <div class="group p-8 rounded-2xl bg-white border border-gray-100 shadow-lg shadow-gray-100/50 hover:shadow-xl hover:-translate-y-1 transition-all duration-200 scroll-animate">
         <div class="inline-flex items-center justify-center p-3 bg-blue-50 rounded-xl text-blue-600 mb-5">
@@ -199,26 +224,26 @@
 
 <!-- Workflow Preview Section -->
 <section id="workflow" class="py-24 bg-[#f9fcff] overflow-hidden">
-  <div class="max-w-[90%] mx-auto px-4">
-    <div class="text-center mb-16">
-      <h2 class="text-3xl font-extrabold text-gray-900 sm:text-4xl">
+  <div class="w-full max-w-[90%] mx-auto px-4">
+    <div class="text-center mb-8 sm:mb-16">
+      <h2 class="text-2xl sm:text-3xl font-extrabold text-gray-900 sm:text-4xl">
         Visual Workflow Builder
       </h2>
-      <p class="mt-4 max-w-2xl mx-auto text-xl text-gray-500">
+      <p class="mt-4 max-w-2xl mx-auto text-base sm:text-xl text-gray-500">
         Design, test, and deploy workflows with our intuitive drag-and-drop interface.
       </p>
     </div>
     
     <!-- Interactive Workflow Preview -->
-    <div class="bg-white rounded-xl shadow-xl p-6">
+    <div class="bg-white rounded-xl shadow-xl p-4 sm:p-6">
       <!-- Main Workflow Area -->
       <div class="relative">
         <!-- Run Workflow Button -->
-        <div class="absolute top-4 right-4 z-10">
+        <div class="flex justify-end mb-4">
           <button 
             (click)="simulateWorkflow()"
             [disabled]="isSimulating || workflowNodes.length === 1"
-            class="run-workflow-btn">
+            class="run-workflow-btn text-sm sm:text-base">
             <svg *ngIf="!isSimulating" class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
               <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M14.752 11.168l-3.197-2.132A1 1 0 0010 9.87v4.263a1 1 0 001.555.832l3.197-2.132a1 1 0 000-1.664z" />
               <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
@@ -232,20 +257,17 @@
         </div>
 
         <!-- Workflow Canvas -->
-        <div 
-          #workflowCanvas
-          class="workflow-canvas"
-        >
+        <div class="workflow-canvas flex flex-col lg:flex-row gap-4 mt-12 sm:mt-16">
           <!-- Components Panel -->
           <div 
-            class="components-panel"
+            class="components-panel w-full lg:w-64 bg-gray-50 p-4 rounded-lg"
             cdkDropList
             #availableList="cdkDropList"
             [cdkDropListData]="availableNodes"
             [cdkDropListConnectedTo]="[workflowList]"
             [cdkDropListSortingDisabled]="true"
           >
-            <div class="search-container">
+            <div class="search-container mb-4">
               <input 
                 type="text" 
                 [(ngModel)]="searchQuery"
@@ -254,7 +276,7 @@
               >
             </div>
 
-            <div class="components-list">
+            <div class="components-list overflow-y-auto max-h-[300px] lg:max-h-[500px]">
               <!-- Enterprise Justice Section -->
               <div *ngIf="getFilteredNodesByType('Enterprise Justice™').length > 0" class="mb-6">
                 <h4 class="text-xs font-semibold text-gray-400 uppercase mb-3">Enterprise Justice</h4>
@@ -309,7 +331,7 @@
           </div>
 
           <!-- Workflow List -->
-          <div class="workflow-list">
+          <div class="workflow-list flex-1 min-h-[400px] lg:min-h-[600px] bg-gray-50 p-4 rounded-lg overflow-x-hidden overflow-y-auto">
             <div 
               class="workflow-nodes-container"
               cdkDropList
@@ -361,11 +383,11 @@
         </div>
 
         <!-- Console Output -->
-        <div class="console-output">
-          <div class="console-header">
-            <h3>Console Output</h3>
+        <div class="console-output mt-4 bg-gray-900 text-white rounded-lg p-4 h-32 overflow-y-auto">
+          <div class="console-header mb-2">
+            <h3 class="text-sm font-semibold text-gray-400">Console Output</h3>
           </div>
-          <div class="console-content">
+          <div class="console-content text-sm font-mono">
             <div *ngFor="let line of consoleOutput" class="line" [class]="line.type">
               {{ line.text }}
             </div>
@@ -584,11 +606,11 @@
 
 <!-- Footer -->
 <footer class="bg-[#1a1f36] text-white">
-  <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
-    <div class="flex flex-col md:flex-row justify-between items-center">
-      <div class="mb-8 md:mb-0">
-        <h3 class="text-2xl font-bold">Parakeet</h3>
-        <p class="mt-2 text-gray-400">Transforming judicial workflows with secure, intelligent automation.</p>
+  <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 sm:py-12">
+    <div class="flex flex-col md:flex-row justify-between items-center space-y-6 md:space-y-0">
+      <div class="text-center md:text-left">
+        <h3 class="text-xl sm:text-2xl font-bold">Parakeet</h3>
+        <p class="mt-2 text-sm sm:text-base text-gray-400">Transforming judicial workflows with secure, intelligent automation.</p>
       </div>
       <div class="flex space-x-6">
       </div>

@@ -1,10 +1,11 @@
 import { Component, HostListener, OnInit, ViewChild, ElementRef, AfterViewInit, OnDestroy } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
-import { CdkDragDrop, CdkDrag, DragDropModule, moveItemInArray, transferArrayItem } from '@angular/cdk/drag-drop';
+import { CdkDragDrop, CdkDrag, DragDropModule, moveItemInArray, transferArrayItem, CdkDropList } from '@angular/cdk/drag-drop';
 import { WorkflowService, WorkflowData } from './services/workflow.service';
 import { DomSanitizer, SafeHtml } from '@angular/platform-browser';
 import { Pipe, PipeTransform } from '@angular/core';
+import { RouterModule } from '@angular/router';
 
 @Pipe({ name: 'safeHtml', standalone: true })
 export class SafeHtmlPipe implements PipeTransform {
@@ -54,10 +55,52 @@ interface FaqCategory {
   templateUrl: './app.component.html',
   styleUrls: ['./app.component.scss'],
   standalone: true,
-  imports: [CommonModule, FormsModule, DragDropModule, SafeHtmlPipe]
+  imports: [CommonModule, FormsModule, DragDropModule, SafeHtmlPipe, RouterModule],
+  styles: [`
+    :host {
+      display: block;
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+    }
+    
+    router-outlet {
+      flex: 1;
+    }
+    
+    nav {
+      transition: all 0.3s ease;
+    }
+    
+    nav.scrolled {
+      @apply shadow-lg;
+    }
+    
+    footer {
+      margin-top: auto;
+    }
+
+    /* Mobile-specific styles */
+    @media (max-width: 768px) {
+      .workflow-canvas {
+        flex-direction: column;
+      }
+
+      .components-panel {
+        max-height: 300px;
+        overflow-y: auto;
+      }
+
+      .workflow-list {
+        min-height: 400px;
+      }
+    }
+  `]
 })
 export class AppComponent implements OnInit, AfterViewInit, OnDestroy {
   @ViewChild('workflowCanvas') workflowCanvas!: ElementRef;
+  @ViewChild('availableList') availableList!: CdkDropList;
+  @ViewChild('workflowList') workflowList!: CdkDropList;
   
   isScrolled = false;
   isSimulating = false;
@@ -89,6 +132,8 @@ export class AppComponent implements OnInit, AfterViewInit, OnDestroy {
   private readonly STEP_DURATION = 3000; // 3 seconds per step
 
   faqSearchQuery: string = '';
+
+  isMobileMenuOpen = false;
 
   constructor(private workflowService: WorkflowService) {
     this.workflowData = this.workflowService.getInitialWorkflowData();
@@ -637,5 +682,31 @@ export class AppComponent implements OnInit, AfterViewInit, OnDestroy {
         item.answer.toLowerCase().includes(query)
       )
     })).filter(category => category.items.length > 0);
+  }
+
+  toggleMobileMenu() {
+    this.isMobileMenuOpen = !this.isMobileMenuOpen;
+  }
+
+  // Add touch event handlers for mobile drag and drop
+  @HostListener('touchstart', ['$event'])
+  onTouchStart(event: TouchEvent) {
+    if (event.touches.length === 1) {
+      const touch = event.touches[0];
+      this.startPan({ button: 2, clientX: touch.clientX, clientY: touch.clientY } as MouseEvent);
+    }
+  }
+
+  @HostListener('touchmove', ['$event'])
+  onTouchMove(event: TouchEvent) {
+    if (event.touches.length === 1) {
+      const touch = event.touches[0];
+      this.pan({ clientX: touch.clientX, clientY: touch.clientY } as MouseEvent);
+    }
+  }
+
+  @HostListener('touchend')
+  onTouchEnd() {
+    this.endPan();
   }
 }
