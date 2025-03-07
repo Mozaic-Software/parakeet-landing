@@ -1369,4 +1369,157 @@
     stroke-linejoin: round;
     transition: all 0.3s ease;
   }
+}
+
+/* Animation utilities */
+@keyframes fadeUp {
+  from {
+    opacity: 0;
+    transform: translateY(20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
+.animate-fade-up {
+  animation: fadeUp 0.5s ease-out forwards;
+}
+
+/* Scroll animations */
+.scroll-animate {
+  opacity: 0;
+  transform: translateY(20px);
+  transition: all 0.8s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.scroll-animate.visible {
+  opacity: 1;
+  transform: translateY(0);
+}
+
+/* Feature tag animations */
+.feature-tag {
+  @apply inline-flex items-center px-4 py-2 rounded-full text-sm font-medium bg-indigo-50 text-indigo-600;
+  animation: fadeIn 0.5s ease-out forwards;
+  transition: all 0.3s ease;
+}
+
+.feature-tag:hover {
+  @apply bg-indigo-100;
+  transform: translateY(-2px);
+}
+
+/* Hero text cycling animation */
+.hero-text-cycle {
+  position: relative;
+  display: inline-block;
+  min-width: 200px;
+}
+
+.hero-text-cycle span {
+  position: absolute;
+  left: 0;
+  right: 0;
+  opacity: 0;
+  transform: translateY(20px);
+  transition: all 0.5s ease;
+}
+
+.hero-text-cycle span.active {
+  opacity: 1;
+  transform: translateY(0);
+}
+
+/* Card animations */
+.card {
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.card:hover {
+  transform: translateY(-4px);
+  box-shadow: 0 12px 24px -8px rgba(0, 0, 0, 0.15);
+}
+
+/* Scroll Animations */
+.scroll-animate {
+  opacity: 0;
+  transform: translateY(20px);
+  transition: all 0.8s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.scroll-animate.visible {
+  opacity: 1;
+  transform: translateY(0);
+}
+
+/* Hero Section Styles */
+.hero-badge {
+  @apply mb-8 px-4 py-2 rounded-full text-lg font-medium;
+  background: linear-gradient(to right, rgba(99, 102, 241, 0.1), rgba(99, 102, 241, 0.05));
+}
+
+.waving-hand {
+  animation: wave 2s infinite;
+  transform-origin: 70% 70%;
+  display: inline-block;
+}
+
+@keyframes wave {
+  0% { transform: rotate(0deg); }
+  10% { transform: rotate(14deg); }
+  20% { transform: rotate(-8deg); }
+  30% { transform: rotate(14deg); }
+  40% { transform: rotate(-4deg); }
+  50% { transform: rotate(10deg); }
+  60% { transform: rotate(0deg); }
+  100% { transform: rotate(0deg); }
+}
+
+.hero-heading {
+  @apply text-4xl tracking-tight font-extrabold text-gray-900 sm:text-5xl md:text-6xl;
+}
+
+.hero-heading-primary {
+  background: linear-gradient(to right, #1a1f36, #3730a3);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+}
+
+.hero-heading-accent {
+  @apply text-indigo-600;
+}
+
+/* Feature Cards Animation */
+.feature-card {
+  opacity: 0;
+  transform: translateY(20px);
+  transition: all 0.6s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.feature-card.visible {
+  opacity: 1;
+  transform: translateY(0);
+}
+
+/* Enterprise Features Animation */
+.enterprise-feature {
+  opacity: 0;
+  transform: translateY(20px);
+  transition: all 0.6s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.enterprise-feature.visible {
+  opacity: 1;
+  transform: translateY(0);
 } 
