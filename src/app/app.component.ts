@@ -265,8 +265,8 @@ export class AppComponent implements OnInit, AfterViewInit, OnDestroy {
       description: 'Map out your data structure and requirements for your workflow.'
     },
     {
-      icon: `<svg class="w-8 h-8" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-        <path d="M15 14l5-5-5-5M5 10l10 0M19 19l-5-5m-9 5l10 0" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+      icon: `<svg xmlns="http://www.w3.org/2000/svg" class="w-8 h-8" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor">
+        <path stroke-linecap="round" stroke-linejoin="round" d="M19.5 12c0-1.232-.046-2.453-.138-3.662a4.006 4.006 0 0 0-3.7-3.7 48.678 48.678 0 0 0-7.324 0 4.006 4.006 0 0 0-3.7 3.7c-.017.22-.032.441-.046.662M19.5 12l3-3m-3 3-3-3m-12 3c0 1.232.046 2.453.138 3.662a4.006 4.006 0 0 0 3.7 3.7 48.656 48.656 0 0 0 7.324 0 4.006 4.006 0 0 0 3.7-3.7c.017-.22.032-.441.046-.662M4.5 12l3 3m-3-3-3 3" />
       </svg>`,
       iconClass: 'inline-flex items-center justify-center p-4 bg-purple-50 rounded-xl text-purple-600 mb-5',
       title: '2. Create a workflow',
@@ -281,10 +281,8 @@ export class AppComponent implements OnInit, AfterViewInit, OnDestroy {
       description: 'Create and manage task lists for your workflow processes.'
     },
     {
-      icon: `<svg class="w-8 h-8" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-        <path d="M5.5 7C5.5 5.89543 6.39543 5 7.5 5H16.5C17.6046 5 18.5 5.89543 18.5 7V19C18.5 20.1046 17.6046 21 16.5 21H7.5C6.39543 21 5.5 20.1046 5.5 19V7Z" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
-        <path d="M9 9.5H15M9 13.5H15M9 17.5H13" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
-        <path d="M12 2V5M8 2V5M16 2V5" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+      icon: `<svg xmlns="http://www.w3.org/2000/svg" class="w-8 h-8" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor">
+        <path stroke-linecap="round" stroke-linejoin="round" d="M15.75 9V5.25A2.25 2.25 0 0 0 13.5 3h-6a2.25 2.25 0 0 0-2.25 2.25v13.5A2.25 2.25 0 0 0 7.5 21h6a2.25 2.25 0 0 0 2.25-2.25V15m3 0 3-3m0 0-3-3m3 3H9" />
       </svg>`,
       iconClass: 'inline-flex items-center justify-center p-4 bg-indigo-50 rounded-xl text-indigo-600 mb-5',
       title: '4. Execute and Monitor',
@@ -294,19 +292,28 @@ export class AppComponent implements OnInit, AfterViewInit, OnDestroy {
 
   enterpriseFeatures = [
     {
-      icon: '🔒',
-      title: 'Advanced Security',
-      description: 'Enterprise-grade encryption and security protocols.'
+      icon: `<svg xmlns="http://www.w3.org/2000/svg" class="w-8 h-8" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z" />
+      </svg>`,
+      iconClass: 'inline-flex items-center justify-center p-4 bg-blue-50 rounded-xl text-blue-600 mb-5',
+      title: 'Enterprise-Grade Security',
+      description: 'Full compliance with CJIS, state regulations, and role-based access control to protect sensitive legal data.'
     },
     {
-      icon: '📊',
-      title: 'Custom Analytics',
-      description: 'Detailed insights and custom reporting capabilities.'
+      icon: `<svg xmlns="http://www.w3.org/2000/svg" class="w-8 h-8" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 14v3m4-3v3m4-3v3M3 21h18M3 10h18M3 7l9-4 9 4M4 10h16v11H4V10z" />
+      </svg>`,
+      iconClass: 'inline-flex items-center justify-center p-4 bg-purple-50 rounded-xl text-purple-600 mb-5',
+      title: 'Workflow Marketplace',
+      description: 'Save time with preconfigured case automation templates—customize them to fit your agency\'s unique needs.'
     },
     {
-      icon: '🤝',
-      title: 'Dedicated Support',
-      description: '24/7 priority support and implementation assistance.'
+      icon: `<svg xmlns="http://www.w3.org/2000/svg" class="w-8 h-8" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z" />
+      </svg>`,
+      iconClass: 'inline-flex items-center justify-center p-4 bg-teal-50 rounded-xl text-teal-600 mb-5',
+      title: 'Justice Partner Collaboration',
+      description: 'Securely exchange case data between courts, DA offices, and justice agencies. Upload lists, map schemas, and trigger workflows—keeping all stakeholders aligned in real time.'
     }
   ];
 
