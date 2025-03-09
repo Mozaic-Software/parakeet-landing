@@ -1,0 +1,22 @@
+{
+  "name": "parakeet-api",
+  "version": "1.0.0",
+  "description": "Parakeet API using Azure Functions",
+  "scripts": {
+    "build": "tsc",
+    "watch": "tsc -w",
+    "clean": "rimraf dist",
+    "prestart": "npm run clean && npm run build",
+    "start": "func start",
+    "test": "echo \"No tests yet\""
+  },
+  "dependencies": {
+    "@azure/data-tables": "^13.2.2",
+    "@azure/functions": "^4.0.0",
+    "@types/node": "^18.x"
+  },
+  "devDependencies": {
+    "typescript": "^4.9.5",
+    "rimraf": "^5.0.5"
+  }
+} 

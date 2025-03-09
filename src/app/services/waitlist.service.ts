@@ -8,15 +8,12 @@ import { WaitlistEntry, WaitlistResponse } from '../models/waitlist.model';
   providedIn: 'root'
 })
 export class WaitlistService {
-  private readonly API_URL = environment.apiUrl;
+  private apiUrl = environment.apiUrl;
 
   constructor(private http: HttpClient) {}
 
   submitWaitlistEntry(entry: WaitlistEntry): Observable<WaitlistResponse> {
-    return this.http.post<WaitlistResponse>(`${this.API_URL}/api/waitlist`, {
-      ...entry,
-      submittedAt: new Date().toISOString()
-    });
+    return this.http.post<WaitlistResponse>(`${this.apiUrl}/waitlist/submit`, entry);
   }
 
   // For development/testing purposes

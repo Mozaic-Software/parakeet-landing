@@ -1,6 +1,6 @@
 export const environment = {
-  production: false,
-  apiUrl: 'http://localhost:7072', // Local Azure Functions endpoint
+  production: true,
+  apiUrl: '/api',  // This will be relative to your Static Web App's domain
   hubspot: {
     portalId: '44444444',
     formId: 'xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx'
