@@ -6,6 +6,7 @@ import { WorkflowService, WorkflowData } from './services/workflow.service';
 import { DomSanitizer, SafeHtml } from '@angular/platform-browser';
 import { Pipe, PipeTransform } from '@angular/core';
 import { RouterModule } from '@angular/router';
+import { WaitlistFormComponent } from './components/waitlist-form/waitlist-form.component';
 
 @Pipe({ name: 'safeHtml', standalone: true })
 export class SafeHtmlPipe implements PipeTransform {
@@ -55,7 +56,14 @@ interface FaqCategory {
   templateUrl: './app.component.html',
   styleUrls: ['./app.component.scss'],
   standalone: true,
-  imports: [CommonModule, FormsModule, DragDropModule, SafeHtmlPipe, RouterModule],
+  imports: [
+    CommonModule,
+    FormsModule,
+    DragDropModule,
+    SafeHtmlPipe,
+    RouterModule,
+    WaitlistFormComponent
+  ],
   styles: [`
     :host {
       display: block;
