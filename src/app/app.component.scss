@@ -1542,4 +1542,97 @@
 /* Feature Tags */
 .feature-tag {
   @apply inline-flex items-center px-3 py-1 rounded-full text-gray-700 bg-gray-100;
+}
+
+/* Base mobile touch and scroll improvements */
+:host {
+  display: block;
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+  -webkit-overflow-scrolling: touch; /* Enable momentum scrolling on iOS */
+  touch-action: manipulation; /* Improve touch handling */
+}
+
+body {
+  overscroll-behavior-y: none; /* Prevent pull-to-refresh on mobile */
+}
+
+/* Mobile-specific improvements */
+@media (max-width: 768px) {
+  .workflow-canvas {
+    flex-direction: column;
+    touch-action: pan-y pinch-zoom; /* Enable vertical scrolling and pinch zoom */
+  }
+
+  .components-panel {
+    max-height: 300px;
+    overflow-y: auto;
+    -webkit-overflow-scrolling: touch;
+    touch-action: pan-y; /* Enable vertical scrolling */
+  }
+
+  .workflow-list {
+    min-height: 400px;
+    overflow-y: auto;
+    -webkit-overflow-scrolling: touch;
+    touch-action: pan-y; /* Enable vertical scrolling */
+  }
+
+  .console-output {
+    -webkit-overflow-scrolling: touch;
+    touch-action: pan-y;
+  }
+
+  /* Improve touch targets */
+  .feature-tag, 
+  .nav-link,
+  button,
+  .workflow-node,
+  .step-card {
+    min-height: 44px; /* Minimum touch target size */
+    touch-action: manipulation;
+  }
+
+  /* Ensure proper scrolling for sections */
+  section {
+    overflow-x: hidden;
+    overflow-y: auto;
+    -webkit-overflow-scrolling: touch;
+  }
+}
+
+/* Improve form controls on mobile */
+input,
+select,
+textarea {
+  font-size: 16px !important; /* Prevent zoom on focus in iOS */
+  touch-action: manipulation;
+}
+
+/* Ensure dropdowns work properly on touch */
+select {
+  -webkit-appearance: none;
+  appearance: none;
+  background-image: url("data:image/svg+xml;charset=utf-8,%3Csvg xmlns='http://www.w3.org/2000/svg' fill='none' viewBox='0 0 20 20'%3E%3Cpath stroke='%236B7280' stroke-linecap='round' stroke-linejoin='round' stroke-width='1.5' d='M6 8l4 4 4-4'/%3E%3C/svg%3E");
+  background-position: right 0.5rem center;
+  background-repeat: no-repeat;
+  background-size: 1.5em 1.5em;
+  padding-right: 2.5rem;
+}
+
+/* Improve scrolling in all scrollable containers */
+.scroll-container {
+  overflow-y: auto;
+  -webkit-overflow-scrolling: touch;
+  touch-action: pan-y;
+}
+
+/* Ensure proper touch handling for drag and drop */
+.cdk-drag {
+  touch-action: none; /* Prevent scrolling while dragging */
+}
+
+.cdk-drag-preview {
+  touch-action: none;
 } 

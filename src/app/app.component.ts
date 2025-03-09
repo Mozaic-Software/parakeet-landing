@@ -124,7 +124,7 @@ export class AppComponent implements OnInit, AfterViewInit, OnDestroy {
   isPanning = false;
   panStart = { x: 0, y: 0 };
   panPosition = { x: 0, y: 0 };
-  lastPanPosition = { x: 0, y: 0 };
+  lastPanPosition: { x: number; y: number; } | null = null;
   zoomLevel = 1;
   readonly ZOOM_STEP = 0.1;
   readonly MIN_ZOOM = 0.5;
@@ -142,6 +142,11 @@ export class AppComponent implements OnInit, AfterViewInit, OnDestroy {
   faqSearchQuery: string = '';
 
   isMobileMenuOpen = false;
+
+  private touchStartY = 0;
+  private touchStartX = 0;
+  private isScrolling = false;
+  private isDragging = false;
 
   constructor(private workflowService: WorkflowService) {
     this.workflowData = this.workflowService.getInitialWorkflowData();
@@ -634,33 +639,41 @@ export class AppComponent implements OnInit, AfterViewInit, OnDestroy {
     }, this.STEP_DURATION);
   }
 
-  startPan(event: MouseEvent) {
-    // Handle right-click pan
-    if (event.button === 2) {
-      event.preventDefault();
-      this.isPanning = true;
-      this.panStart = {
-        x: event.clientX - this.lastPanPosition.x,
-        y: event.clientY - this.lastPanPosition.y
-      };
+  startPan(event: MouseEvent | TouchEvent) {
+    if (event instanceof MouseEvent && event.button !== 2) {
+      return;
     }
+
+    const clientX = event instanceof MouseEvent ? event.clientX : event.touches[0].clientX;
+    const clientY = event instanceof MouseEvent ? event.clientY : event.touches[0].clientY;
+
+    this.isDragging = true;
+    this.lastPanPosition = { x: clientX, y: clientY };
   }
 
-  pan(event: MouseEvent) {
-    if (this.isPanning) {
-      event.preventDefault();
-      requestAnimationFrame(() => {
-        this.panPosition = {
-          x: event.clientX - this.panStart.x,
-          y: event.clientY - this.panStart.y
-        };
-      });
+  pan(event: MouseEvent | Touch) {
+    if (this.isDragging && this.lastPanPosition) {
+      const clientX = 'touches' in event ? event.clientX : event.clientX;
+      const clientY = 'touches' in event ? event.clientY : event.clientY;
+      
+      const deltaX = clientX - this.lastPanPosition.x;
+      const deltaY = clientY - this.lastPanPosition.y;
+
+      this.panPosition = {
+        x: this.panPosition.x + deltaX,
+        y: this.panPosition.y + deltaY
+      };
+
+      this.lastPanPosition = { x: clientX, y: clientY };
     }
   }
 
   endPan() {
-    this.isPanning = false;
-    this.lastPanPosition = { ...this.panPosition };
+    this.isDragging = false;
+    if (this.lastPanPosition) {
+      this.panPosition = { ...this.lastPanPosition };
+    }
+    this.lastPanPosition = null;
   }
 
   toggleFaq(category: FaqCategory, item: FaqItem) {
@@ -696,25 +709,52 @@ export class AppComponent implements OnInit, AfterViewInit, OnDestroy {
     this.isMobileMenuOpen = !this.isMobileMenuOpen;
   }
 
-  // Add touch event handlers for mobile drag and drop
   @HostListener('touchstart', ['$event'])
   onTouchStart(event: TouchEvent) {
     if (event.touches.length === 1) {
-      const touch = event.touches[0];
-      this.startPan({ button: 2, clientX: touch.clientX, clientY: touch.clientY } as MouseEvent);
+      this.touchStartY = event.touches[0].clientY;
+      this.touchStartX = event.touches[0].clientX;
+      this.isScrolling = false;
     }
   }
 
   @HostListener('touchmove', ['$event'])
   onTouchMove(event: TouchEvent) {
     if (event.touches.length === 1) {
-      const touch = event.touches[0];
-      this.pan({ clientX: touch.clientX, clientY: touch.clientY } as MouseEvent);
+      const touchY = event.touches[0].clientY;
+      const touchX = event.touches[0].clientX;
+      const deltaY = touchY - this.touchStartY;
+      const deltaX = touchX - this.touchStartX;
+
+      // Determine if this is a scroll or drag operation
+      if (!this.isScrolling && Math.abs(deltaY) > Math.abs(deltaX)) {
+        this.isScrolling = true;
+      }
+
+      // If we're scrolling, don't prevent default behavior
+      if (this.isScrolling) {
+        return;
+      }
+
+      // If we're dragging a workflow node, prevent scrolling
+      const isDraggingNode = event.target instanceof Element && 
+        (event.target.closest('.workflow-node') || event.target.closest('.cdk-drag'));
+      
+      if (isDraggingNode) {
+        event.preventDefault();
+        // Update drag position
+        if (this.isDragging) {
+          this.pan(event.touches[0]);
+        }
+      }
     }
   }
 
-  @HostListener('touchend')
-  onTouchEnd() {
-    this.endPan();
+  @HostListener('touchend', ['$event'])
+  onTouchEnd(event: TouchEvent) {
+    this.isScrolling = false;
+    if (this.isDragging) {
+      this.endPan();
+    }
   }
 }
