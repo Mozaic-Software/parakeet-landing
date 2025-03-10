@@ -1,7 +1,7 @@
 {
   "routes": [
     {
-      "route": "src/api/*",
+      "route": "api/*",
       "methods": ["GET", "POST", "PUT", "DELETE"],
       "allowedRoles": ["anonymous"]
     },
@@ -17,5 +17,6 @@
   },
   "mimeTypes": {
     ".json": "text/json"
-  }
+  },
+  "FUNCTIONS_WORKER_RUNTIME": "dotnet"
 }
