@@ -13,7 +13,7 @@ export class WaitlistService {
   constructor(private http: HttpClient) {}
 
   submitWaitlistEntry(entry: WaitlistEntry): Observable<WaitlistResponse> {
-    return this.http.post<WaitlistResponse>(`${this.apiUrl}/waitlist/submit`, entry);
+    return this.http.post<WaitlistResponse>(`${this.apiUrl}/waitlistfunction`, entry);
   }
 
   // For development/testing purposes
