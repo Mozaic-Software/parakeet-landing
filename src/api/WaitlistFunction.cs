@@ -9,6 +9,7 @@ using Microsoft.Extensions.Logging;
 using Newtonsoft.Json;
 using Azure;
 using Azure.Data.Tables;
+using System.Net;
 
 namespace api
 {
@@ -56,11 +57,34 @@ namespace api
 
             try
             {
+                // Ensure table exists
+                try
+                {
+                    await tableClient.CreateIfNotExistsAsync();
+                    log.LogInformation("Table exists or was created successfully.");
+                }
+                catch (RequestFailedException e)
+                {
+                    log.LogError($"Error creating table: {e.Message}. Status: {e.Status}, ErrorCode: {e.ErrorCode}");
+                    return new ObjectResult(new WaitlistResponse
+                    {
+                        Success = false,
+                        Message = "Unable to initialize storage. Please try again later.",
+                        Data = null
+                    })
+                    {
+                        StatusCode = (int)HttpStatusCode.InternalServerError
+                    };
+                }
+
                 string requestBody = await new StreamReader(req.Body).ReadToEndAsync();
+                log.LogInformation($"Received request body: {requestBody}");
+                
                 var entry = JsonConvert.DeserializeObject<WaitlistEntry>(requestBody);
 
                 if (entry == null || string.IsNullOrEmpty(entry.Email))
                 {
+                    log.LogWarning("Invalid request: Email is missing or request body is malformed.");
                     return new BadRequestObjectResult(new WaitlistResponse
                     {
                         Success = false,
@@ -81,8 +105,25 @@ namespace api
                     CreatedAt = DateTime.UtcNow
                 };
 
-                // Add to table storage
-                await tableClient.AddEntityAsync(tableEntity);
+                try
+                {
+                    // Add to table storage
+                    await tableClient.AddEntityAsync(tableEntity);
+                    log.LogInformation($"Successfully added entry to table storage for email: {entry.Email}");
+                }
+                catch (RequestFailedException e)
+                {
+                    log.LogError($"Storage error while adding entity: {e.Message}. Status: {e.Status}, ErrorCode: {e.ErrorCode}");
+                    return new ObjectResult(new WaitlistResponse
+                    {
+                        Success = false,
+                        Message = "Unable to save your entry. Please try again later.",
+                        Data = null
+                    })
+                    {
+                        StatusCode = (int)HttpStatusCode.InternalServerError
+                    };
+                }
 
                 var response = new WaitlistResponse
                 {
@@ -100,15 +141,15 @@ namespace api
             }
             catch (Exception ex)
             {
-                log.LogError($"Error processing waitlist entry: {ex.Message}");
+                log.LogError($"Unexpected error processing waitlist entry: {ex.Message}\nStack trace: {ex.StackTrace}");
                 return new ObjectResult(new WaitlistResponse
                 {
                     Success = false,
-                    Message = "An error occurred while processing your request.",
+                    Message = "An unexpected error occurred while processing your request.",
                     Data = null
                 })
                 {
-                    StatusCode = StatusCodes.Status500InternalServerError
+                    StatusCode = (int)HttpStatusCode.InternalServerError
                 };
             }
         }
