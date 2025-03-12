@@ -31,6 +31,8 @@ interface WorkflowNode {
   badgeClass: string;
   source: string;
   instanceId: string;
+  description?: string;
+  type?: 'case-management' | 'flow-control' | 'ai-communication';
   processData: (data: WorkflowData) => WorkflowData;
 }
 
@@ -175,88 +177,203 @@ export class AppComponent implements OnInit, AfterViewInit, OnDestroy {
   // Updated workflow nodes with proper categorization
   availableNodes: WorkflowNode[] = [
     {
+      id: 'get_case_header',
+      label: 'Get Case Header',
+      icon: '<svg class="w-6 h-6" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 012-2h2a2 2 0 012 2M9 5h6" /></svg>',
+      iconClass: 'text-blue-600',
+      badgeClass: 'bg-indigo-50 text-indigo-700',
+      source: 'Case Management',
+      type: 'case-management',
+      description: 'Retrieve case header information',
+      instanceId: 'template_get_case_header',
+      processData: (data: WorkflowData) => data
+    },
+    {
+      id: 'add_case',
+      label: 'Add Case',
+      icon: '<svg class="w-6 h-6" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6v6m0 0v6m0-6h6m-6 0H6" /></svg>',
+      iconClass: 'text-blue-600',
+      badgeClass: 'bg-indigo-50 text-indigo-700',
+      source: 'Case Management',
+      type: 'case-management',
+      description: 'Create a new case in the system',
+      instanceId: 'template_add_case',
+      processData: (data: WorkflowData) => data
+    },
+    {
+      id: 'get_charges',
+      label: 'Get Charges',
+      icon: '<svg class="w-6 h-6" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 012-2h2a2 2 0 012 2M9 5h6M9 13h6" /></svg>',
+      iconClass: 'text-blue-600',
+      badgeClass: 'bg-indigo-50 text-indigo-700',
+      source: 'Case Management',
+      type: 'case-management',
+      description: 'Retrieve all charges for a case',
+      instanceId: 'template_get_charges',
+      processData: (data: WorkflowData) => data
+    },
+    {
+      id: 'get_charge',
+      label: 'Get Charge',
+      icon: '<svg class="w-6 h-6" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 012-2h2a2 2 0 012 2M9 5h6" /></svg>',
+      iconClass: 'text-blue-600',
+      badgeClass: 'bg-indigo-50 text-indigo-700',
+      source: 'Case Management',
+      type: 'case-management',
+      description: 'Retrieve specific charge details',
+      instanceId: 'template_get_charge',
+      processData: (data: WorkflowData) => data
+    },
+    {
+      id: 'get_case_security',
+      label: 'Get Case Security',
+      icon: '<svg class="w-6 h-6" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z" /></svg>',
+      iconClass: 'text-blue-600',
+      badgeClass: 'bg-indigo-50 text-indigo-700',
+      source: 'Case Management',
+      type: 'case-management',
+      description: 'Check case security and access rights',
+      instanceId: 'template_get_case_security',
+      processData: (data: WorkflowData) => data
+    },
+    {
+      id: 'update_financials',
+      label: 'Update Financials',
+      icon: '<svg class="w-6 h-6" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z" /></svg>',
+      iconClass: 'text-blue-600',
+      badgeClass: 'bg-indigo-50 text-indigo-700',
+      source: 'Case Management',
+      type: 'case-management',
+      description: 'Update case financial information',
+      instanceId: 'template_update_financials',
+      processData: (data: WorkflowData) => data
+    },
+    {
+      id: 'disposition',
+      label: 'Disposition',
+      icon: '<svg class="w-6 h-6" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" /></svg>',
+      iconClass: 'text-blue-600',
+      badgeClass: 'bg-indigo-50 text-indigo-700',
+      source: 'Case Management',
+      type: 'case-management',
+      description: 'Set case disposition',
+      instanceId: 'template_disposition',
+      processData: (data: WorkflowData) => data
+    },
+    {
+      id: 'get_document',
+      label: 'Get Document',
+      icon: '<svg class="w-6 h-6" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 21h10a2 2 0 002-2V9.414a1 1 0 00-.293-.707l-5.414-5.414A1 1 0 0012.586 3H7a2 2 0 00-2 2v14a2 2 0 002 2z" /></svg>',
+      iconClass: 'text-blue-600',
+      badgeClass: 'bg-indigo-50 text-indigo-700',
+      source: 'Case Management',
+      type: 'case-management',
+      description: 'Retrieve case document',
+      instanceId: 'template_get_document',
+      processData: (data: WorkflowData) => data
+    },
+    {
       id: 'add_event',
       label: 'Add Event',
       icon: '<svg class="w-6 h-6" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" /></svg>',
-      iconClass: 'text-indigo-600',
+      iconClass: 'text-blue-600',
       badgeClass: 'bg-indigo-50 text-indigo-700',
-      source: 'Enterprise Justice™',
+      source: 'Case Management',
+      type: 'case-management',
+      description: 'Add a new event to the case timeline',
       instanceId: 'template_add_event',
-      processData: (data: WorkflowData) => ({
-        ...data,
-        metadata: {
-          ...data.metadata,
-          lastEvent: {
-            type: 'CASE_UPDATE',
-            timestamp: new Date().toISOString()
-          }
-        }
-      })
-    },
-    {
-      id: 'add_document',
-      label: 'Add Document',
-      icon: '<svg class="w-6 h-6" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 13h6m-3-3v6m5 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" /></svg>',
-      iconClass: 'text-indigo-600',
-      badgeClass: 'bg-indigo-50 text-indigo-700',
-      source: 'ECourt™',
-      instanceId: 'template_add_document',
-      processData: (data: WorkflowData) => ({
-        ...data,
-        documents: [
-          ...(data.documents || []),
-          {
-            id: `DOC-${Math.random().toString(36).substr(2, 9)}`,
-            type: 'FILING',
-            url: `https://court.gov/docs/${data.caseId}/latest.pdf`,
-            status: 'PENDING_REVIEW'
-          }
-        ]
-      })
+      processData: (data: WorkflowData) => data
     },
     {
       id: 'update_charge',
       label: 'Update Charge',
       icon: '<svg class="w-6 h-6" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 7h6m0 10v-3m-3 3h.01M9 17h.01M9 14h.01M12 14h.01M15 11h.01M12 11h.01M9 11h.01M7 21h10a2 2 0 002-2V5a2 2 0 00-2-2H7a2 2 0 00-2 2v14a2 2 0 002 2z" /></svg>',
-      iconClass: 'text-indigo-600',
+      iconClass: 'text-blue-600',
       badgeClass: 'bg-indigo-50 text-indigo-700',
-      source: 'Enterprise Justice™',
+      source: 'Case Management',
+      type: 'case-management',
+      description: 'Modify or update charge details',
       instanceId: 'template_update_charge',
-      processData: (data: WorkflowData) => ({
-        ...data,
-        charges: data.charges.map(charge => ({
-          ...charge,
-          status: 'UPDATED',
-          lastModified: new Date().toISOString()
-        }))
-      })
+      processData: (data: WorkflowData) => data
+    },
+    {
+      id: 'for_each',
+      label: 'For Each',
+      icon: '<svg class="w-6 h-6" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" /></svg>',
+      iconClass: 'text-purple-600',
+      badgeClass: 'bg-purple-50 text-purple-700',
+      source: 'Flow Control',
+      type: 'flow-control',
+      description: 'Loop through a collection of items',
+      instanceId: 'template_for_each',
+      processData: (data: WorkflowData) => data
+    },
+    {
+      id: 'condition_check',
+      label: 'Condition Check',
+      icon: '<svg class="w-6 h-6" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8.228 9c.549-1.165 2.03-2 3.772-2 2.21 0 4 1.343 4 3 0 1.4-1.278 2.575-3.006 2.907-.542.104-.994.54-.994 1.093m0 3h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" /></svg>',
+      iconClass: 'text-purple-600',
+      badgeClass: 'bg-purple-50 text-purple-700',
+      source: 'Flow Control',
+      type: 'flow-control',
+      description: 'Check conditions and branch workflow',
+      instanceId: 'template_condition_check',
+      processData: (data: WorkflowData) => data
+    },
+    {
+      id: 'chat_gpt_agent',
+      label: 'Chat GPT Agent',
+      icon: '<svg class="w-6 h-6" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z" /></svg>',
+      iconClass: 'text-green-600',
+      badgeClass: 'bg-green-50 text-green-700',
+      source: 'AI & Communication',
+      type: 'ai-communication',
+      description: 'Use ChatGPT for intelligent processing',
+      instanceId: 'template_chat_gpt_agent',
+      processData: (data: WorkflowData) => data
+    },
+    {
+      id: 'copilot_agent',
+      label: 'CoPilot Agent',
+      icon: '<svg class="w-6 h-6" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9.75 17L9 20l-1 1h8l-1-1-.75-3M3 13h18M5 17h14a2 2 0 002-2V5a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z" /></svg>',
+      iconClass: 'text-green-600',
+      badgeClass: 'bg-green-50 text-green-700',
+      source: 'AI & Communication',
+      type: 'ai-communication',
+      description: 'Use CoPilot for assistance',
+      instanceId: 'template_copilot_agent',
+      processData: (data: WorkflowData) => data
+    },
+    {
+      id: 'send_sms',
+      label: 'Send SMS',
+      icon: '<svg class="w-6 h-6" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z" /></svg>',
+      iconClass: 'text-green-600',
+      badgeClass: 'bg-green-50 text-green-700',
+      source: 'AI & Communication',
+      type: 'ai-communication',
+      description: 'Send SMS notifications',
+      instanceId: 'template_send_sms',
+      processData: (data: WorkflowData) => data
     },
     {
       id: 'send_email',
       label: 'Send Email',
       icon: '<svg class="w-6 h-6" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z" /></svg>',
-      iconClass: 'text-indigo-600',
-      badgeClass: 'bg-indigo-50 text-indigo-700',
-      source: 'CourtComm™',
+      iconClass: 'text-green-600',
+      badgeClass: 'bg-green-50 text-green-700',
+      source: 'AI & Communication',
+      type: 'ai-communication',
+      description: 'Send email notifications',
       instanceId: 'template_send_email',
-      processData: (data: WorkflowData) => ({
-        ...data,
-        metadata: {
-          ...data.metadata,
-          lastNotification: {
-            type: 'EMAIL',
-            timestamp: new Date().toISOString(),
-            recipients: data.parties.map(p => p.email)
-          }
-        }
-      })
+      processData: (data: WorkflowData) => data
     }
   ];
 
   // Filter nodes by type and search query
   getFilteredNodesByType(type: string): WorkflowNode[] {
     return this.availableNodes.filter(node => {
-      const matchesType = node.source === type;
+      const matchesType = node.type === type;
       const matchesSearch = !this.searchQuery || 
         node.label.toLowerCase().includes(this.searchQuery.toLowerCase()) ||
         node.source.toLowerCase().includes(this.searchQuery.toLowerCase());
@@ -274,25 +391,26 @@ export class AppComponent implements OnInit, AfterViewInit, OnDestroy {
       if (event.previousIndex === 0 || event.currentIndex === 0) {
         return; // Prevent moving Start node or moving items to position 0
       }
-
-      // Get the actual target index, accounting for the Start node
-      const targetIndex = Math.max(1, event.currentIndex);
-      const sourceIndex = event.previousIndex;
-
-      // Move the item
-      const nodeToMove = this.workflowNodes[sourceIndex];
-      this.workflowNodes.splice(sourceIndex, 1);
-      this.workflowNodes.splice(targetIndex, 0, nodeToMove);
+      moveItemInArray(this.workflowNodes, event.previousIndex, event.currentIndex);
     } else {
       // Adding new node from components panel
-      const nodeData = event.item.data;
+      const sourceNode = event.item.data;
       const insertIndex = Math.max(1, event.currentIndex); // Ensure we never insert at 0
       
+      // Create a deep copy of the node to ensure all properties are properly transferred
       const newNode: WorkflowNode = {
-        ...nodeData,
-        instanceId: `step_${this.workflowNodes.length}`
+        ...sourceNode,
+        instanceId: `step_${this.workflowNodes.length}`,
+        icon: sourceNode.icon,
+        iconClass: sourceNode.iconClass,
+        type: sourceNode.type,
+        description: sourceNode.description,
+        source: sourceNode.source,
+        badgeClass: sourceNode.badgeClass,
+        processData: sourceNode.processData
       };
 
+      // Insert the new node at the specified index
       this.workflowNodes.splice(insertIndex, 0, newNode);
     }
 
@@ -302,16 +420,24 @@ export class AppComponent implements OnInit, AfterViewInit, OnDestroy {
     
     // Reset search
     this.searchQuery = '';
+
+    // Force change detection
+    this.workflowNodes = [...this.workflowNodes];
   }
 
   private updateNodeIds() {
     // Keep Start node as is
-    const startNode = this.workflowNodes[0];
-    
-    // Update remaining nodes
     for (let i = 1; i < this.workflowNodes.length; i++) {
       this.workflowNodes[i].instanceId = `step_${i}`;
     }
+  }
+
+  // Add this method to get drag data
+  getDragData(node: WorkflowNode): WorkflowNode {
+    return {
+      ...node,
+      instanceId: `step_${this.workflowNodes.length + 1}`
+    };
   }
 
   // Helper method to update view
@@ -756,5 +882,17 @@ export class AppComponent implements OnInit, AfterViewInit, OnDestroy {
     if (this.isDragging) {
       this.endPan();
     }
+  }
+
+  getIconClass(node: WorkflowNode): string {
+    return node.iconClass;
+  }
+
+  getIcon(node: WorkflowNode): string {
+    return node.icon;
+  }
+
+  getNodeId(node: WorkflowNode): string {
+    return node.instanceId.split('_')[1] || '1';
   }
 }
