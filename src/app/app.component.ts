@@ -34,6 +34,8 @@ interface WorkflowNode {
   description?: string;
   type?: 'case-management' | 'flow-control' | 'ai-communication';
   processData: (data: WorkflowData) => WorkflowData;
+  connectionPoints: ConnectionPoint[];
+  position: { x: number; y: number };
 }
 
 interface ConsoleOutput {
@@ -51,6 +53,29 @@ interface FaqCategory {
   title: string;
   icon: string;
   items: FaqItem[];
+}
+
+interface ConnectionPoint {
+  id: string;
+  type: 'input' | 'output' | 'error' | 'success';
+  label: string;
+  position: 'top' | 'bottom';
+  order: number;
+  isConnected?: boolean;
+  style?: {
+    backgroundColor?: string;
+    borderColor?: string;
+    textColor?: string;
+  };
+}
+
+interface Connection {
+  id: string;
+  sourceNodeId: string;
+  targetNodeId: string;
+  sourcePointId: string;
+  targetPointId: string;
+  type: 'data' | 'control' | 'success' | 'error';
 }
 
 @Component({
@@ -119,6 +144,7 @@ export class AppComponent implements OnInit, AfterViewInit, OnDestroy {
   workflowData: WorkflowData;
   stepStatuses: StepStatus[] = [];
   workflowNodes: WorkflowNode[] = [];
+  connections: Connection[] = [];
   searchQuery: string = '';
   currentYear = new Date().getFullYear();
 
@@ -152,18 +178,44 @@ export class AppComponent implements OnInit, AfterViewInit, OnDestroy {
 
   constructor(private workflowService: WorkflowService) {
     this.workflowData = this.workflowService.getInitialWorkflowData();
-    // Initialize with static start node
-    const startNode: WorkflowNode = {
-      id: 'start',
-      label: 'Start',
-      icon: '<svg class="w-6 h-6" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6" /></svg>',
-      iconClass: 'text-indigo-600',
-      badgeClass: 'bg-indigo-100 text-indigo-700',
-      source: 'System',
-      instanceId: 'node_1',
-      processData: (data: WorkflowData) => data
-    };
-    this.workflowNodes = [startNode];
+    
+    // Initialize nodes with proper positions
+    const startNode = this.createNode('start', 'Start', 100, 100);
+    const getCaseHeaderNode = this.createNode('get_case_header', 'Get Case Header', 100, 250);
+    const getChargesNode = this.createNode('get_charges', 'Get Charges', 100, 400);
+    const loopNode = this.createNode('loop', 'For Each Charge', 100, 550);
+    const getDispositionNode = this.createNode('disposition', 'Get Disposition', 100, 700);
+    const conditionNode = this.createNode('if_condition', 'Is Dismissed?', 100, 850);
+    const notifyPartiesNode = this.createNode('notify_parties', 'Notify Parties', 300, 1000);
+    const updateChargeNode = this.createNode('update_charge', 'Update Charge', -100, 1000);
+    const mergeNode = this.createNode('notify_parties', 'Done', 100, 1150);
+
+    // Initialize workflow nodes
+    this.workflowNodes = [
+      startNode,
+      getCaseHeaderNode,
+      getChargesNode,
+      loopNode,
+      getDispositionNode,
+      conditionNode,
+      notifyPartiesNode,
+      updateChargeNode,
+      mergeNode
+    ];
+
+    // Initialize connections
+    this.connections = [
+      this.createConnection(startNode, getCaseHeaderNode, 'data'),
+      this.createConnection(getCaseHeaderNode, getChargesNode, 'data'),
+      this.createConnection(getChargesNode, loopNode, 'data'),
+      this.createConnection(loopNode, getDispositionNode, 'data'),
+      this.createConnection(getDispositionNode, conditionNode, 'data'),
+      this.createConnection(conditionNode, notifyPartiesNode, 'success'),
+      this.createConnection(conditionNode, updateChargeNode, 'error'),
+      this.createConnection(notifyPartiesNode, mergeNode, 'data'),
+      this.createConnection(updateChargeNode, mergeNode, 'data')
+    ].filter((conn): conn is Connection => conn !== null);
+
     this.initializeStepStatuses();
   }
 
@@ -174,7 +226,7 @@ export class AppComponent implements OnInit, AfterViewInit, OnDestroy {
 
   title = 'Parakeet';
 
-  // Updated workflow nodes with proper categorization
+  // Initialize available nodes
   availableNodes: WorkflowNode[] = [
     {
       id: 'get_case_header',
@@ -183,189 +235,81 @@ export class AppComponent implements OnInit, AfterViewInit, OnDestroy {
       iconClass: 'text-blue-600',
       badgeClass: 'bg-indigo-50 text-indigo-700',
       source: 'Case Management',
-      type: 'case-management',
+      type: 'case-management' as const,
       description: 'Retrieve case header information',
       instanceId: 'template_get_case_header',
-      processData: (data: WorkflowData) => data
-    },
-    {
-      id: 'add_case',
-      label: 'Add Case',
-      icon: '<svg class="w-6 h-6" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6v6m0 0v6m0-6h6m-6 0H6" /></svg>',
-      iconClass: 'text-blue-600',
-      badgeClass: 'bg-indigo-50 text-indigo-700',
-      source: 'Case Management',
-      type: 'case-management',
-      description: 'Create a new case in the system',
-      instanceId: 'template_add_case',
+      connectionPoints: [] as ConnectionPoint[],
+      position: { x: 0, y: 0 },
       processData: (data: WorkflowData) => data
     },
     {
       id: 'get_charges',
       label: 'Get Charges',
-      icon: '<svg class="w-6 h-6" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 012-2h2a2 2 0 012 2M9 5h6M9 13h6" /></svg>',
+      icon: '<svg class="w-6 h-6" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" /></svg>',
       iconClass: 'text-blue-600',
       badgeClass: 'bg-indigo-50 text-indigo-700',
       source: 'Case Management',
-      type: 'case-management',
-      description: 'Retrieve all charges for a case',
+      type: 'case-management' as const,
+      description: 'Retrieve charges associated with the case',
       instanceId: 'template_get_charges',
+      connectionPoints: [] as ConnectionPoint[],
+      position: { x: 0, y: 0 },
       processData: (data: WorkflowData) => data
     },
     {
-      id: 'get_charge',
-      label: 'Get Charge',
-      icon: '<svg class="w-6 h-6" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 012-2h2a2 2 0 012 2M9 5h6" /></svg>',
-      iconClass: 'text-blue-600',
-      badgeClass: 'bg-indigo-50 text-indigo-700',
-      source: 'Case Management',
-      type: 'case-management',
-      description: 'Retrieve specific charge details',
-      instanceId: 'template_get_charge',
-      processData: (data: WorkflowData) => data
-    },
-    {
-      id: 'get_case_security',
-      label: 'Get Case Security',
-      icon: '<svg class="w-6 h-6" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z" /></svg>',
-      iconClass: 'text-blue-600',
-      badgeClass: 'bg-indigo-50 text-indigo-700',
-      source: 'Case Management',
-      type: 'case-management',
-      description: 'Check case security and access rights',
-      instanceId: 'template_get_case_security',
-      processData: (data: WorkflowData) => data
-    },
-    {
-      id: 'update_financials',
-      label: 'Update Financials',
-      icon: '<svg class="w-6 h-6" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z" /></svg>',
-      iconClass: 'text-blue-600',
-      badgeClass: 'bg-indigo-50 text-indigo-700',
-      source: 'Case Management',
-      type: 'case-management',
-      description: 'Update case financial information',
-      instanceId: 'template_update_financials',
-      processData: (data: WorkflowData) => data
-    },
-    {
-      id: 'disposition',
-      label: 'Disposition',
-      icon: '<svg class="w-6 h-6" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" /></svg>',
-      iconClass: 'text-blue-600',
-      badgeClass: 'bg-indigo-50 text-indigo-700',
-      source: 'Case Management',
-      type: 'case-management',
-      description: 'Set case disposition',
-      instanceId: 'template_disposition',
-      processData: (data: WorkflowData) => data
-    },
-    {
-      id: 'get_document',
-      label: 'Get Document',
-      icon: '<svg class="w-6 h-6" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 21h10a2 2 0 002-2V9.414a1 1 0 00-.293-.707l-5.414-5.414A1 1 0 0012.586 3H7a2 2 0 00-2 2v14a2 2 0 002 2z" /></svg>',
-      iconClass: 'text-blue-600',
-      badgeClass: 'bg-indigo-50 text-indigo-700',
-      source: 'Case Management',
-      type: 'case-management',
-      description: 'Retrieve case document',
-      instanceId: 'template_get_document',
-      processData: (data: WorkflowData) => data
-    },
-    {
-      id: 'add_event',
-      label: 'Add Event',
-      icon: '<svg class="w-6 h-6" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" /></svg>',
-      iconClass: 'text-blue-600',
-      badgeClass: 'bg-indigo-50 text-indigo-700',
-      source: 'Case Management',
-      type: 'case-management',
-      description: 'Add a new event to the case timeline',
-      instanceId: 'template_add_event',
-      processData: (data: WorkflowData) => data
-    },
-    {
-      id: 'update_charge',
-      label: 'Update Charge',
-      icon: '<svg class="w-6 h-6" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 7h6m0 10v-3m-3 3h.01M9 17h.01M9 14h.01M12 14h.01M15 11h.01M12 11h.01M9 11h.01M7 21h10a2 2 0 002-2V5a2 2 0 00-2-2H7a2 2 0 00-2 2v14a2 2 0 002 2z" /></svg>',
-      iconClass: 'text-blue-600',
-      badgeClass: 'bg-indigo-50 text-indigo-700',
-      source: 'Case Management',
-      type: 'case-management',
-      description: 'Modify or update charge details',
-      instanceId: 'template_update_charge',
-      processData: (data: WorkflowData) => data
-    },
-    {
-      id: 'for_each',
-      label: 'For Each',
-      icon: '<svg class="w-6 h-6" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" /></svg>',
-      iconClass: 'text-purple-600',
-      badgeClass: 'bg-purple-50 text-purple-700',
-      source: 'Flow Control',
-      type: 'flow-control',
-      description: 'Loop through a collection of items',
-      instanceId: 'template_for_each',
-      processData: (data: WorkflowData) => data
-    },
-    {
-      id: 'condition_check',
-      label: 'Condition Check',
+      id: 'if_condition',
+      label: 'If Condition',
       icon: '<svg class="w-6 h-6" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8.228 9c.549-1.165 2.03-2 3.772-2 2.21 0 4 1.343 4 3 0 1.4-1.278 2.575-3.006 2.907-.542.104-.994.54-.994 1.093m0 3h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" /></svg>',
       iconClass: 'text-purple-600',
       badgeClass: 'bg-purple-50 text-purple-700',
       source: 'Flow Control',
-      type: 'flow-control',
-      description: 'Check conditions and branch workflow',
-      instanceId: 'template_condition_check',
+      type: 'flow-control' as const,
+      description: 'Branch workflow based on a condition',
+      instanceId: 'template_if_condition',
+      connectionPoints: [] as ConnectionPoint[],
+      position: { x: 0, y: 0 },
       processData: (data: WorkflowData) => data
     },
     {
-      id: 'chat_gpt_agent',
-      label: 'Chat GPT Agent',
-      icon: '<svg class="w-6 h-6" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z" /></svg>',
-      iconClass: 'text-green-600',
-      badgeClass: 'bg-green-50 text-green-700',
-      source: 'AI & Communication',
-      type: 'ai-communication',
-      description: 'Use ChatGPT for intelligent processing',
-      instanceId: 'template_chat_gpt_agent',
+      id: 'loop',
+      label: 'Loop',
+      icon: '<svg class="w-6 h-6" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" /></svg>',
+      iconClass: 'text-purple-600',
+      badgeClass: 'bg-purple-50 text-purple-700',
+      source: 'Flow Control',
+      type: 'flow-control' as const,
+      description: 'Iterate over a collection of items',
+      instanceId: 'template_loop',
+      connectionPoints: [] as ConnectionPoint[],
+      position: { x: 0, y: 0 },
       processData: (data: WorkflowData) => data
     },
     {
-      id: 'copilot_agent',
-      label: 'CoPilot Agent',
-      icon: '<svg class="w-6 h-6" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9.75 17L9 20l-1 1h8l-1-1-.75-3M3 13h18M5 17h14a2 2 0 002-2V5a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z" /></svg>',
-      iconClass: 'text-green-600',
-      badgeClass: 'bg-green-50 text-green-700',
-      source: 'AI & Communication',
-      type: 'ai-communication',
-      description: 'Use CoPilot for assistance',
-      instanceId: 'template_copilot_agent',
+      id: 'process_charge',
+      label: 'Process Charge',
+      icon: '<svg class="w-6 h-6" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" /></svg>',
+      iconClass: 'text-blue-600',
+      badgeClass: 'bg-indigo-50 text-indigo-700',
+      source: 'Case Management',
+      type: 'case-management' as const,
+      description: 'Process individual charge details',
+      instanceId: 'template_process_charge',
+      connectionPoints: [] as ConnectionPoint[],
+      position: { x: 0, y: 0 },
       processData: (data: WorkflowData) => data
     },
     {
-      id: 'send_sms',
-      label: 'Send SMS',
-      icon: '<svg class="w-6 h-6" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z" /></svg>',
-      iconClass: 'text-green-600',
-      badgeClass: 'bg-green-50 text-green-700',
-      source: 'AI & Communication',
-      type: 'ai-communication',
-      description: 'Send SMS notifications',
-      instanceId: 'template_send_sms',
-      processData: (data: WorkflowData) => data
-    },
-    {
-      id: 'send_email',
-      label: 'Send Email',
-      icon: '<svg class="w-6 h-6" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z" /></svg>',
-      iconClass: 'text-green-600',
-      badgeClass: 'bg-green-50 text-green-700',
-      source: 'AI & Communication',
-      type: 'ai-communication',
-      description: 'Send email notifications',
-      instanceId: 'template_send_email',
+      id: 'notify_parties',
+      label: 'Notify Parties',
+      icon: '<svg class="w-6 h-6" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 17h5l-1.405-1.405A2.032 2.032 0 0118 14.158V11a6.002 6.002 0 00-4-5.659V5a2 2 0 10-4 0v.341C7.67 6.165 6 8.388 6 11v3.159c0 .538-.214 1.055-.595 1.436L4 17h5m6 0v1a3 3 0 11-6 0v-1m6 0H9" /></svg>',
+      iconClass: 'text-teal-600',
+      badgeClass: 'bg-teal-50 text-teal-700',
+      source: 'Communication',
+      type: 'ai-communication' as const,
+      description: 'Send notifications to relevant parties',
+      instanceId: 'template_notify_parties',
+      connectionPoints: [] as ConnectionPoint[],
+      position: { x: 0, y: 0 },
       processData: (data: WorkflowData) => data
     }
   ];
@@ -407,7 +351,9 @@ export class AppComponent implements OnInit, AfterViewInit, OnDestroy {
         description: sourceNode.description,
         source: sourceNode.source,
         badgeClass: sourceNode.badgeClass,
-        processData: sourceNode.processData
+        processData: sourceNode.processData,
+        connectionPoints: sourceNode.connectionPoints,
+        position: sourceNode.position
       };
 
       // Insert the new node at the specified index
@@ -894,5 +840,152 @@ export class AppComponent implements OnInit, AfterViewInit, OnDestroy {
 
   getNodeId(node: WorkflowNode): string {
     return node.instanceId.split('_')[1] || '1';
+  }
+
+  getDefaultConnectionPoints(node: WorkflowNode): ConnectionPoint[] {
+    if (node.id === 'start') {
+      return [
+        {
+          id: 'start_output',
+          type: 'output',
+          label: 'Output',
+          position: 'bottom',
+          order: 1,
+          isConnected: false,
+          style: {
+            backgroundColor: '#e5e7eb',
+            borderColor: '#9ca3af',
+            textColor: '#374151'
+          }
+        }
+      ];
+    }
+
+    const points: ConnectionPoint[] = [
+      // Top input points
+      {
+        id: `${node.id}_input_1`,
+        type: 'input',
+        label: 'Input',
+        position: 'top',
+        order: 1,
+        isConnected: false,
+        style: {
+          backgroundColor: '#eef2ff',
+          borderColor: '#4f46e5',
+          textColor: '#4f46e5'
+        }
+      }
+    ];
+
+    // Add bottom points based on node type
+    if (node.type === 'flow-control' && node.id === 'if_condition') {
+      points.push(
+        {
+          id: `${node.id}_success`,
+          type: 'success',
+          label: 'True',
+          position: 'bottom',
+          order: 1,
+          isConnected: false,
+          style: {
+            backgroundColor: '#f0fdf4',
+            borderColor: '#22c55e',
+            textColor: '#22c55e'
+          }
+        },
+        {
+          id: `${node.id}_error`,
+          type: 'error',
+          label: 'False',
+          position: 'bottom',
+          order: 2,
+          isConnected: false,
+          style: {
+            backgroundColor: '#fef2f2',
+            borderColor: '#ef4444',
+            textColor: '#ef4444'
+          }
+        }
+      );
+    } else if (node.type === 'flow-control' && node.id === 'loop') {
+      points.push(
+        {
+          id: `${node.id}_output`,
+          type: 'output',
+          label: 'Loop Body',
+          position: 'bottom',
+          order: 1,
+          isConnected: false,
+          style: {
+            backgroundColor: '#ecfdf5',
+            borderColor: '#10b981',
+            textColor: '#10b981'
+          }
+        },
+        {
+          id: `${node.id}_success`,
+          type: 'success',
+          label: 'Complete',
+          position: 'bottom',
+          order: 2,
+          isConnected: false,
+          style: {
+            backgroundColor: '#f0fdf4',
+            borderColor: '#22c55e',
+            textColor: '#22c55e'
+          }
+        }
+      );
+    } else {
+      points.push(
+        {
+          id: `${node.id}_output`,
+          type: 'output',
+          label: 'Output',
+          position: 'bottom',
+          order: 1,
+          isConnected: false,
+          style: {
+            backgroundColor: '#ecfdf5',
+            borderColor: '#10b981',
+            textColor: '#10b981'
+          }
+        }
+      );
+    }
+
+    return points;
+  }
+
+  private createNode(id: string, label: string, x: number, y: number): WorkflowNode {
+    const templateNode = this.availableNodes.find(n => n.id === id) || this.availableNodes[0];
+    const node: WorkflowNode = {
+      ...templateNode,
+      label,
+      instanceId: `node_${this.workflowNodes.length + 1}`,
+      position: { x, y },
+      connectionPoints: []
+    };
+    node.connectionPoints = this.getDefaultConnectionPoints(node);
+    return node;
+  }
+
+  private createConnection(source: WorkflowNode, target: WorkflowNode, type: 'data' | 'success' | 'error'): Connection | null {
+    const sourcePoint = source.connectionPoints.find(p => 
+      type === 'data' ? p.type === 'output' : p.type === type
+    );
+    const targetPoint = target.connectionPoints.find(p => p.type === 'input');
+
+    if (!sourcePoint || !targetPoint) return null;
+
+    return {
+      id: `conn_${this.connections.length + 1}`,
+      sourceNodeId: source.instanceId,
+      targetNodeId: target.instanceId,
+      sourcePointId: sourcePoint.id,
+      targetPointId: targetPoint.id,
+      type: type
+    };
   }
 }
