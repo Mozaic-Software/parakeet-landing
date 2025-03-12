@@ -250,10 +250,10 @@
         </div>
 
         <!-- Workflow Canvas -->
-        <div class="workflow-canvas flex flex-col lg:flex-row gap-4 mt-12 sm:mt-16">
+        <div class="flex flex-col lg:flex-row gap-4 mt-12 sm:mt-16">
           <!-- Components Panel -->
           <div 
-            class="components-panel w-full lg:w-64 bg-gray-50 p-4 rounded-lg"
+            class="w-full lg:w-64 bg-gray-50 p-4 rounded-lg flex flex-col"
             cdkDropList
             #availableList="cdkDropList"
             [cdkDropListData]="availableNodes"
@@ -269,7 +269,7 @@
               >
             </div>
 
-            <div class="components-list overflow-y-auto max-h-[300px] lg:max-h-[500px]">
+            <div class="flex-1 overflow-y-auto">
               <!-- Enterprise Justice Section -->
               <div *ngIf="getFilteredNodesByType('Enterprise Justice™').length > 0" class="mb-6">
                 <h4 class="text-xs font-semibold text-gray-400 uppercase mb-3">Enterprise Justice</h4>
