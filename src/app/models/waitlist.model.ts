@@ -1,4 +1,6 @@
 export interface WaitlistEntry {
+  firstName: string;
+  lastName: string;
   email: string;
   caseManagementSystem: string;
   otherCms?: string;

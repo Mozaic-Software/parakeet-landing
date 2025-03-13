@@ -29,89 +29,123 @@ import { WaitlistEntry } from '../../models/waitlist.model';
           </div>
           
           <form *ngIf="!submitSuccess" [formGroup]="waitlistForm" (ngSubmit)="onSubmit()" class="space-y-6">
-            <!-- Email Field -->
-            <div>
-              <label for="email" class="block text-sm font-medium text-gray-700">Work Email</label>
-              <div class="mt-1">
-                <input 
-                  type="email" 
-                  id="email"
-                  formControlName="email"
-                  class="block w-full px-4 py-3 rounded-lg border border-gray-300 shadow-sm focus:ring-indigo-500 focus:border-indigo-500"
-                  [class.border-red-300]="waitlistForm.get('email')?.invalid && waitlistForm.get('email')?.touched"
-                >
-                <p *ngIf="waitlistForm.get('email')?.invalid && waitlistForm.get('email')?.touched" 
-                   class="mt-1 text-sm text-red-600">
-                  Please enter a valid work email address
-                </p>
+            <div class="space-y-6">
+              <!-- First Name Field -->
+              <div>
+                <label for="firstName" class="block text-sm font-medium text-gray-700">First Name</label>
+                <div class="mt-1">
+                  <input
+                    type="text"
+                    id="firstName"
+                    name="firstName"
+                    formControlName="firstName"
+                    required
+                    class="block w-full px-4 py-3 rounded-lg border border-gray-300 shadow-sm focus:ring-indigo-500 focus:border-indigo-500"
+                    placeholder="John"
+                  >
+                </div>
               </div>
-            </div>
 
-            <!-- Case Management System -->
-            <div>
-              <label for="caseManagementSystem" class="block text-sm font-medium text-gray-700">
-                What case management system do you use?
-              </label>
-              <div class="mt-1">
-                <select 
-                  id="caseManagementSystem"
-                  formControlName="caseManagementSystem"
-                  class="block w-full px-4 py-3 rounded-lg border border-gray-300 shadow-sm focus:ring-indigo-500 focus:border-indigo-500"
-                  (change)="onCmsChange($event)"
-                >
-                  <option value="">Select a system</option>
-                  <option value="Enterprise Justice">Enterprise Justice</option>
-                  <option value="eCourt">eCourt</option>
-                  <option value="other">Other</option>
-                </select>
+              <!-- Last Name Field -->
+              <div>
+                <label for="lastName" class="block text-sm font-medium text-gray-700">Last Name</label>
+                <div class="mt-1">
+                  <input
+                    type="text"
+                    id="lastName"
+                    name="lastName"
+                    formControlName="lastName"
+                    required
+                    class="block w-full px-4 py-3 rounded-lg border border-gray-300 shadow-sm focus:ring-indigo-500 focus:border-indigo-500"
+                    placeholder="Doe"
+                  >
+                </div>
               </div>
-              
-              <!-- Other CMS Input -->
-              <div *ngIf="showOtherCms" class="mt-3">
-                <label for="otherCms" class="block text-sm font-medium text-gray-700">Please specify</label>
-                <input 
-                  type="text"
-                  id="otherCms"
-                  formControlName="otherCms"
-                  class="mt-1 block w-full px-4 py-3 rounded-lg border border-gray-300 shadow-sm focus:ring-indigo-500 focus:border-indigo-500"
-                >
-              </div>
-            </div>
 
-            <!-- Agency Type -->
-            <div>
-              <label for="agencyType" class="block text-sm font-medium text-gray-700">
-                What type of agency are you representing?
-              </label>
-              <div class="mt-1">
-                <select 
-                  id="agencyType"
-                  formControlName="agencyType"
-                  class="block w-full px-4 py-3 rounded-lg border border-gray-300 shadow-sm focus:ring-indigo-500 focus:border-indigo-500"
-                  (change)="onAgencyChange($event)"
-                >
-                  <option value="">Select an agency type</option>
-                  <option value="Superior Court">Superior Court</option>
-                  <option value="Appellate Court">Appellate Court</option>
-                  <option value="District Court">District Court</option>
-                  <option value="Municipal Court">Municipal Court</option>
-                  <option value="Probation">Probation</option>
-                  <option value="District Attorney">District Attorney</option>
-                  <option value="Private Attorney">Private Attorney</option>
-                  <option value="Public Defender">Public Defender</option>
-                  <option value="other">Other</option>
-                </select>
+              <!-- Email Field -->
+              <div>
+                <label for="email" class="block text-sm font-medium text-gray-700">Work Email</label>
+                <div class="mt-1">
+                  <input 
+                    type="email" 
+                    id="email"
+                    formControlName="email"
+                    class="block w-full px-4 py-3 rounded-lg border border-gray-300 shadow-sm focus:ring-indigo-500 focus:border-indigo-500"
+                    [class.border-red-300]="waitlistForm.get('email')?.invalid && waitlistForm.get('email')?.touched"
+                  >
+                  <p *ngIf="waitlistForm.get('email')?.invalid && waitlistForm.get('email')?.touched" 
+                     class="mt-1 text-sm text-red-600">
+                    Please enter a valid work email address
+                  </p>
+                </div>
               </div>
-              
-              <!-- Other Agency Input -->
-              <div *ngIf="showOtherAgency" class="mt-3">
-                <label for="otherAgency" class="block text-sm font-medium text-gray-700">Please specify</label>
-                <input 
-                  type="text"
-                  id="otherAgency"
-                  formControlName="otherAgency"
-                  class="mt-1 block w-full px-4 py-3 rounded-lg border border-gray-300 shadow-sm focus:ring-indigo-500 focus:border-indigo-500"
-                >
+
+              <!-- Case Management System -->
+              <div>
+                <label for="caseManagementSystem" class="block text-sm font-medium text-gray-700">
+                  What case management system do you use?
+                </label>
+                <div class="mt-1">
+                  <select 
+                    id="caseManagementSystem"
+                    formControlName="caseManagementSystem"
+                    class="block w-full px-4 py-3 rounded-lg border border-gray-300 shadow-sm focus:ring-indigo-500 focus:border-indigo-500"
+                    (change)="onCmsChange($event)"
+                  >
+                    <option value="">Select a system</option>
+                    <option value="Enterprise Justice">Enterprise Justice</option>
+                    <option value="eCourt">eCourt</option>
+                    <option value="other">Other</option>
+                  </select>
+                </div>
+                
+                <!-- Other CMS Input -->
+                <div *ngIf="showOtherCms" class="mt-3">
+                  <label for="otherCms" class="block text-sm font-medium text-gray-700">Please specify</label>
+                  <input 
+                    type="text"
+                    id="otherCms"
+                    formControlName="otherCms"
+                    class="mt-1 block w-full px-4 py-3 rounded-lg border border-gray-300 shadow-sm focus:ring-indigo-500 focus:border-indigo-500"
+                  >
+                </div>
+              </div>
+
+              <!-- Agency Type -->
+              <div>
+                <label for="agencyType" class="block text-sm font-medium text-gray-700">
+                  What type of agency are you representing?
+                </label>
+                <div class="mt-1">
+                  <select 
+                    id="agencyType"
+                    formControlName="agencyType"
+                    class="block w-full px-4 py-3 rounded-lg border border-gray-300 shadow-sm focus:ring-indigo-500 focus:border-indigo-500"
+                    (change)="onAgencyChange($event)"
+                  >
+                    <option value="">Select an agency type</option>
+                    <option value="Superior Court">Superior Court</option>
+                    <option value="Appellate Court">Appellate Court</option>
+                    <option value="District Court">District Court</option>
+                    <option value="Municipal Court">Municipal Court</option>
+                    <option value="Probation">Probation</option>
+                    <option value="District Attorney">District Attorney</option>
+                    <option value="Private Attorney">Private Attorney</option>
+                    <option value="Public Defender">Public Defender</option>
+                    <option value="other">Other</option>
+                  </select>
+                </div>
+                
+                <!-- Other Agency Input -->
+                <div *ngIf="showOtherAgency" class="mt-3">
+                  <label for="otherAgency" class="block text-sm font-medium text-gray-700">Please specify</label>
+                  <input 
+                    type="text"
+                    id="otherAgency"
+                    formControlName="otherAgency"
+                    class="mt-1 block w-full px-4 py-3 rounded-lg border border-gray-300 shadow-sm focus:ring-indigo-500 focus:border-indigo-500"
+                  >
+                </div>
               </div>
             </div>
 
@@ -191,6 +225,8 @@ export class WaitlistFormComponent {
     private waitlistService: WaitlistService
   ) {
     this.waitlistForm = this.fb.group({
+      firstName: ['', Validators.required],
+      lastName: ['', Validators.required],
       email: ['', [Validators.required, Validators.email]],
       caseManagementSystem: ['', Validators.required],
       otherCms: [''],
@@ -229,12 +265,14 @@ export class WaitlistFormComponent {
       this.submitError = null;
 
       const formData = this.waitlistForm.value;
-      const entry: WaitlistEntry = {
+      const entry = {
+        firstName: formData.firstName,
+        lastName: formData.lastName,
         email: formData.email,
         caseManagementSystem: formData.caseManagementSystem === 'other' ? formData.otherCms : formData.caseManagementSystem,
         agencyType: formData.agencyType === 'other' ? formData.otherAgency : formData.agencyType,
         submittedAt: new Date().toISOString()
-      };
+      } as WaitlistEntry;
 
       if (formData.caseManagementSystem === 'other') {
         entry.otherCms = formData.otherCms;
